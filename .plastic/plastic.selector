@@ -1,0 +1,4 @@
+repository "PsycheJourney@Bmarts@cloud"
+  path "/"
+    br "/main"
+    co "/main"
