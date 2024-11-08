@@ -22,7 +22,7 @@ public class CanvasLayerAS : MonoBehaviour
     {
         // Set sorting orders for main UI elements
         
-        SetLayer(asteroid, 2);
+        SetLayer(asteroid, 1);
    
 
        
