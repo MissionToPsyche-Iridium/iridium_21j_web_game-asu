@@ -32,7 +32,7 @@ public class AsteroidSpawner : MonoBehaviour
         UpdateLevelText();
         levelCapMenu.SetActive(false);
         player = Object.FindFirstObjectByType<Satellite>();
-        SpawnAsteroids();
+        //SpawnAsteroids();
     }
     
     private void Update()
