@@ -113,6 +113,11 @@
           if(avoid_count>avoidlim){
             avoid_count=0;
             score++;
+
+            if(score % 5 === 0)
+            {
+                regainlife();
+            }
           }
           avoid_count++;
 
@@ -140,9 +145,11 @@
                     bullets.splice(bulletIndex, 1);
                     score++;
 
-              }
-             
-              
+                    if(score % 5 === 0)
+                    {
+                        regainlife();
+                    }
+                }
             });
         });
     }
@@ -226,6 +233,13 @@
         const gameOverText = document.createElement('h1');
         gameOverText.textContent = 'Game Over';
         menuOverlay.prepend(gameOverText);
+    }
+
+    function regainlife() {
+        if(lives < 3)
+        {
+           lives++;         
+        }
     }
 
     document.addEventListener('keydown', (e) => {
