@@ -54,6 +54,8 @@
     let avoid_count=0;
     let high_score=0;
     let avoidlim=5;
+    let lives = 3;
+    let gameOver = false;
 
     document.addEventListener('keydown', keyDownHandler);
     document.addEventListener('keyup', keyUpHandler);
@@ -89,6 +91,11 @@
     }
 
     function update() {
+        if(gameOver)
+        {
+            return;
+        }
+
         spaceship.x += spaceship.dx;
 
         if (spaceship.x < 0) spaceship.x = 0;
@@ -114,9 +121,13 @@
 
         //if spaceship asteroid collision
               if(isImpact(spaceship,asteroid)){
-                   asteroids.splice(index, 1);
-                    score--;
-
+                    asteroids.splice(index, 1);
+                    lives--;
+                    if(lives <= 0)
+                    {
+                        triggerGameOver();
+                        return;
+                    }
               }
 
         });
@@ -157,6 +168,7 @@
         ctx.fillStyle = "white";
         ctx.font = "20px Arial";
         ctx.fillText("Score: " + score + " high score: " + high_score, 10, 20);
+        ctx.fillText("Lives: " + lives, 10, 50);
     }
 
     function clearCanvas() {
@@ -206,6 +218,16 @@
         menuOverlay.style.display = paused ? 'flex' : 'none';
     }
 
+    function triggerGameOver() {
+        gameOver = true;
+        paused = false;
+        menuOverlay.style.display = 'flex';
+        resumeButton.style.display = 'none';
+        const gameOverText = document.createElement('h1');
+        gameOverText.textContent = 'Game Over';
+        menuOverlay.prepend(gameOverText);
+    }
+
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             togglePause();
@@ -225,7 +247,7 @@
     });
 
     function gameLoop() {
-        if (!paused) {
+        if (!paused && !gameOver) {
         clearCanvas();
         drawSpaceship();
         drawAsteroids();
