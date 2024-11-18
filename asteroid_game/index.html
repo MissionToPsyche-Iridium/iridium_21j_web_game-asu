@@ -29,8 +29,8 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    let animeGirl = new Image();
-    animeGirl.src = 'spaceship.png'; // Change the character image here
+    let spaceshipImage = new Image();
+    spaceshipImage.src = 'spaceship.png'; // Change the character image here
 
     let asteroidImage = new Image();
     asteroidImage.src = 'asteroid.png'; // Change the asteroid image here
@@ -49,6 +49,7 @@
     let score = 0;
     let difficulty=0.02;
     let global_speed_factor=0;
+    let paused = false;
 
     let avoid_count=0;
     let high_score=0;
@@ -136,7 +137,7 @@
     }
 
     function drawSpaceship() {
-        ctx.drawImage(animeGirl, spaceship.x, spaceship.y, spaceship.width, spaceship.height);
+        ctx.drawImage(spaceshipImage, spaceship.x, spaceship.y, spaceship.width, spaceship.height);
     }
 
     function drawAsteroids() {
@@ -161,6 +162,67 @@
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+
+    const menuOverlay = document.createElement('div');
+    menuOverlay.style.position = 'fixed';
+    menuOverlay.style.top = '0';
+    menuOverlay.style.left = '0';
+    menuOverlay.style.width = '100%';
+    menuOverlay.style.height = '100%';
+    menuOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    menuOverlay.style.color = 'white';
+    menuOverlay.style.display = 'flex';
+    menuOverlay.style.flexDirection = 'column';
+    menuOverlay.style.justifyContent = 'center';
+    menuOverlay.style.alignItems = 'center';
+    menuOverlay.style.zIndex = '1000';
+    menuOverlay.style.display = 'none';
+    document.body.appendChild(menuOverlay);
+
+    const resumeButton = document.createElement('button');
+    resumeButton.textContent = 'Resume Game';
+    resumeButton.style.margin = '10px';
+    resumeButton.style.padding = '10px 20px';
+    resumeButton.style.fontSize = '18px';
+
+    const restartButton = document.createElement('button');
+    restartButton.textContent = 'Restart Game';
+    restartButton.style.margin = '10px';
+    restartButton.style.padding = '10px 20px';
+    restartButton.style.fontSize = '18px';
+
+    const mainMenuButton = document.createElement('button');
+    mainMenuButton.textContent = 'Main Menu';
+    mainMenuButton.style.margin = '10px';
+    mainMenuButton.style.padding = '10px 20px';
+    mainMenuButton.style.fontSize = '18px';
+
+    menuOverlay.appendChild(resumeButton);
+    menuOverlay.appendChild(restartButton);
+    menuOverlay.appendChild(mainMenuButton);
+
+    function togglePause() {
+        paused = !paused;
+        menuOverlay.style.display = paused ? 'flex' : 'none';
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            togglePause();
+        }
+    });
+
+    resumeButton.addEventListener('click', () => {
+        togglePause();
+    });
+
+    restartButton.addEventListener('click', () => {
+        location.reload();
+    });
+
+    mainMenuButton.addEventListener('click', () => {
+        alert('Go to main menu (implement navigation logic here)');
+    });
 
     function gameLoop() {
         clearCanvas();
