@@ -221,10 +221,11 @@
     });
 
     mainMenuButton.addEventListener('click', () => {
-        alert('Go to main menu (implement navigation logic here)');
+        location.href = 'index.html'; //TODO: Change location to the actual path of the launch page
     });
 
     function gameLoop() {
+        if (!paused) {
         clearCanvas();
         drawSpaceship();
         drawAsteroids();
@@ -232,26 +233,27 @@
         drawScore();
         update();
 
-      if(score<0)
-        score=0;
+        if (score < 0) score = 0;
 
+        difficulty = score / 100.0;
 
-        difficulty=score/100.0;
-
-        if(difficulty>1){
-          difficulty=1;
+        if (difficulty > 1) {
+            difficulty = 1;
         }
-        if(difficulty<0.01){
-          difficulty=0.01;
+        if (difficulty < 0.01) {
+            difficulty = 0.01;
         }
-        global_speed_factor=(difficulty*30);
-        avoidlim=global_speed_factor*10;
+        global_speed_factor = difficulty * 30;
+        avoidlim = global_speed_factor * 10;
 
-        if(score>high_score){
-          high_score=score;
+        if (score > high_score) {
+            high_score = score;
         }
-        
+
         if (Math.random() < difficulty) createAsteroid();
+        } else {
+            drawScore();
+        }
 
         requestAnimationFrame(gameLoop);
     }
