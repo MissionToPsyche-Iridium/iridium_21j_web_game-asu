@@ -41,7 +41,8 @@
         width: 100,
         height: 200,
         speed: 15,
-        dx: 0
+        dx: 0,
+        dy: 0
     };
 
     let asteroids = [];
@@ -74,11 +75,13 @@
     function keyDownHandler(e) {
         if (e.key === 'ArrowLeft') spaceship.dx = -spaceship.speed;
         else if (e.key === 'ArrowRight') spaceship.dx = spaceship.speed;
-        //if (e.key === ' ') shoot();
+        else if (e.key === 'ArrowUp') spaceship.dy = -spaceship.speed;
+        else if (e.key === 'ArrowDown') spaceship.dy = spaceship.speed;
     }
 
     function keyUpHandler(e) {
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') spaceship.dx = 0;
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') spaceship.dy = 0;
     }
 
     function shoot() {
@@ -97,9 +100,12 @@
         }
 
         spaceship.x += spaceship.dx;
+        spaceship.y += spaceship.dy;
 
         if (spaceship.x < 0) spaceship.x = 0;
         if (spaceship.x + spaceship.width > canvas.width) spaceship.x = canvas.width - spaceship.width;
+        if (spaceship.y < 0) spaceship.y = 0;
+        if (spaceship.y + spaceship.height > canvas.height) spaceship.y = canvas.height - spaceship.height;
 
         bullets.forEach((bullet, index) => {
             bullet.y -= 10;
