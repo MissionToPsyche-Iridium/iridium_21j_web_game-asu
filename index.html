@@ -161,6 +161,7 @@
     }
   }
 
+  // Draw the initial rocket
   function draw_stay_pooping(){
 
     var down_correction=6;
@@ -169,7 +170,7 @@
     graphics.drawImage(nojets,window_w/2-rocket_width/2+right_correction,down_correction+window_h/2-nojets_height/2,rocket_width,nojets_height);
   }
 
-  // Draw the rocket
+  // Draw the flying rocket
   function draw_flying(y){
     var down_correction=6;
     var right_correction=13;
@@ -263,7 +264,7 @@
 
   looped();
 
-  // Countdown function 
+  // Countdown function to display counter before launch
   function startCountdown() {
     if (is_counting_down) return; // Prevent multiple countdowns
     is_counting_down = true;
