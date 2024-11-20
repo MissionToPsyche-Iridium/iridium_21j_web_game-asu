@@ -54,99 +54,125 @@
 <script src="gradient.js"></script>
 <script src="rocket_animation.js"></script>
 <script src="stars.js"></script>
+<script src="bird.js"></script>
 <script>
   //this is the auto load function load the background set the canvas size etc
-
 
   var window_h = window.innerHeight;
   var window_w = window.innerWidth;
 
   let background = new Image();
-  background.src = 'background.png';
+  background.src = 'background.png'; // Launchpad background
 
   const canvas = document.getElementById("gameCanvas");
   canvas.width=window_w;
   canvas.height=window_h;
   const graphics = canvas.getContext("2d");
 
-  //now get the images with the rocket with no jets
-  // and with jets
-
+  //now get the images with the rocket with no jets and with jets
   let jets= new Image();
   jets.src="jets.png";
+
   let nojets = new Image();
   nojets.src="nojets.png";
 
+  let birdImage = new Image();
+  birdImage.src = "bird.png"; // Bird image
 
+  // Initialize birds
+  initBirds(window_w, window_h);
+
+  // Load the music file
+  let countdownSound = new Audio('count.mp3');
+
+  // Load the music file
+  let flightSound = new Audio('launch.mp3');
+
+  // Rocket setup
   let scale=0.5;
-
   var rocket_width=278*scale;
   var nojets_height=881*scale;
   var jets_height=962*scale;
 
-
-
-
-
-  var is_base=1;
+  // States and variables
+  var is_base=1; // Initial state
   var darkness=0;
   var star_shift=0;
-  var speed=1;
-  var acceleration=0.1;
-
+  var speed=0.7;
+  var acceleration=0.01;
   var downmove=window_h/2-jets_height/2;
 
+  var is_counting_down = false; // Flag to indicate if countdown is active
+  var countdownInterval = null; // Reference to the countdown interval
+
   function draw_bg(){
+
     if (is_base!=1){
-     // graphics.drawImage(background2,0,0,window_w,window_h);
-    var down_correction=0;
-    var right_correction=0;
+      // Variables for gradient and star opacity
+      var star_opacity = darkness / (510);
 
-    var star_opacity=darkness/(510);
+      if (downmove < height) {
+        
+        createGradient(graphics, window_w, window_h, darkness); // Gradient sky
+        draw_stars(graphics, star_shift, star_opacity); // Stars
+        
+        // Draw birds in the sky within a specific height range
+        if (darkness > 10 && darkness < 200) {
+          drawBirds(graphics, birdImage, window_w, window_h); // Birds animation
+        }
 
+        graphics.drawImage(background, 0, downmove, window_w, window_h); // Initial background (launchpad)
 
-      if(downmove<height){
-
-        createGradient(graphics,window_w,downmove,darkness);
-        draw_stars(graphics,star_shift,star_opacity);
-
-       graphics.drawImage(background,0,downmove,window_w,window_h);
-        downmove=downmove+speed;
-      }else{
-
-         createGradient(graphics,window_w,window_h,darkness);
-         draw_stars(graphics,star_shift,star_opacity);
-
-      }
-      speed=speed+acceleration;
-      
-      draw_flying(0);
+        downmove += speed; // Move rocket upward
+      } 
      
-    if(darkness<510)
-     darkness=darkness+0.1;
-
-    star_shift=star_shift+1.5;
-
-      if(star_shift>height){
-        star_shift=0;
+      else {
+        createGradient(graphics, window_w, window_h, darkness); // Gradient sky
+        
+        // Draw birds in the sky within a specific height range
+        if (darkness > 10 && darkness < 200) {
+          drawBirds(graphics, birdImage, window_w, window_h); // Birds animation
+        }
+        
+        // Draw stars when dark enough
+        if (darkness >= 500) {
+          draw_stars(graphics, star_shift, star_opacity); // Stars
+        } 
       }
 
-    }else{  
-      graphics.drawImage(background,0,0,window_w,window_h);
+      // Gradually increase speed
+      speed += acceleration;
+
+      // Gradually increase darkness for gradient transition
+      if (darkness < 1000) darkness += 0.3; // Adjust this value for speed
+
+      // Shift stars for animation in Phase 2
+      star_shift += 1.5;
+
+      if (star_shift > height) {
+        star_shift = 0;
+      }
+
+      draw_flying(0); // Draw the rocket
+
+    } else {
+      // Phase 0: Initial static background
+      graphics.drawImage(background, 0, 0, window_w, window_h);
     }
   }
 
   function draw_stay_pooping(){
 
-    var down_correction=10;
-    var right_correction=30;
+    var down_correction=6;
+    var right_correction=13;
 
     graphics.drawImage(nojets,window_w/2-rocket_width/2+right_correction,down_correction+window_h/2-nojets_height/2,rocket_width,nojets_height);
   }
 
+  // Draw the rocket
   function draw_flying(y){
-    var down_correction=10;
-    var right_correction=30;
+    var down_correction=6;
+    var right_correction=13;
 
     var xp=window_w/2-rocket_width/2+right_correction;
     var yp=down_correction+window_h/2-jets_height/2 - y;
@@ -180,6 +206,16 @@
     darkness=0;
     star_shift=0;
     downmove=window_h/2-jets_height/2;
+
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+
+    var countdownElement = document.getElementById("countdown-timer");
+    if (countdownElement) {
+        countdownElement.parentNode.removeChild(countdownElement);
+    }
   }
 
   function populate_UI(){
@@ -187,27 +223,26 @@
     if(document.getElementById("liftoff").innerHTML!=document.getElementById("hidden_content").innerHTML) 
         document.getElementById("liftoff").innerHTML=document.getElementById("hidden_content").innerHTML;
   }
+
   function get_base(){
     if(is_flying==1)
       return 0;
     return is_base;
   }
 
-
-
   function looped(){
     // if the window got resized
     window_h = window.innerHeight
     window_w = window.innerWidth;
+    
     draw_bg();
 
     if(is_flying==1){
       draw_flying(fly_counter);
 
+      fly_counter += speed;
+      speed += acceleration;
 
-      speed=speed+acceleration;
-
-      fly_counter=fly_counter+speed;
       if(fly_counter>window_h-jets_height-jets_height/2){
        fly_counter=window_h;
         //speed=1;
@@ -223,10 +258,57 @@
       }
     }
 
-
     requestAnimationFrame(looped);
   }
+
   looped();
+
+  // Countdown function 
+  function startCountdown() {
+    if (is_counting_down) return; // Prevent multiple countdowns
+    is_counting_down = true;
+
+    var countdown = 10; // 10 second countdown
+    var countdownElement = document.createElement("div");
+
+    // Style the countdown display
+    countdownElement.style.position = "fixed";
+    countdownElement.style.top = "50%";
+    countdownElement.style.left = "50%";
+    countdownElement.style.transform = "translate(-50%, -50%)";
+    countdownElement.style.fontSize = "250px";
+    countdownElement.style.color = "white";
+    countdownElement.style.zIndex = "20";
+    countdownElement.id = "countdown-timer";
+    document.body.appendChild(countdownElement);
+
+    countdownElement.innerHTML = countdown;
+
+    // Play countdown sound
+    countdownSound.play();
+
+    countdownInterval = setInterval(function() {
+        countdown--;
+        if (countdown >= 0) {
+          if(countdown != 0) countdownElement.innerHTML = countdown;
+        } else {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+            document.body.removeChild(countdownElement);
+            is_counting_down = false;
+
+            // Stop countdown sound
+            countdownSound.pause();
+            countdownSound.currentTime = 0;
+
+            // Play launch sound
+            flightSound.play();
+
+            // Start the rocket launch
+            start_flying(); // Start the rocket launch
+        }
+    }, 1000); // Countdown updates every second
+  }
 
   </script>
 
@@ -235,8 +317,8 @@
 
     document.addEventListener('keydown', onkey);
     function onkey(e){
-      if(e.key == ' ' && get_base()==1){
-        start_flying();
+      if(e.key == ' ' && get_base()==1 && !is_counting_down){
+        startCountdown();
         if(document.getElementById("welcome") != null)
           document.getElementById("welcome").remove();
       }
@@ -244,6 +326,14 @@
       if(e.key == 'r')
         reset();
     }
+
+    // Stop flight music when any navigation button is clicked
+    document.querySelectorAll('.button').forEach(button => {
+      button.addEventListener('click', function (e) {
+        flightSound.pause();
+        flightSound.currentTime = 0; // Reset music to the beginning
+      });
+    });
   </script>
 
 </html>
