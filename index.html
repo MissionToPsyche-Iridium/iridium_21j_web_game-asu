@@ -143,6 +143,8 @@
       // Gradually increase speed
       speed += acceleration;
 
+      draw_flying(0); // Draw the rocket
+
       // Gradually increase darkness for gradient transition
       if (darkness < 1000) darkness += 0.3; // Adjust this value for speed
 
@@ -152,8 +154,6 @@
       if (star_shift > height) {
         star_shift = 0;
       }
-
-      draw_flying(0); // Draw the rocket
 
     } else {
       // Phase 0: Initial static background
