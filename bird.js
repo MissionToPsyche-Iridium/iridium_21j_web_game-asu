@@ -17,7 +17,6 @@ function initBirds(window_w, window_h) {
 // Draw bird
 function drawBirds(graphics, birdImage, window_w, window_h) {
     birds.forEach((bird, index) => {
-      console.log(`Drawing bird ${index} at (${bird.x}, ${bird.y})`);
       // Draw each bird
       graphics.drawImage(birdImage, bird.x, bird.y, bird.size, bird.size);
   
