@@ -1,45 +1,41 @@
-function createGradient(nid,width,height,darkness){
+function createGradient(nid, width, height, darkness) {
+  const grad = nid.createLinearGradient(0, height, 0, 0);
 
- 
-  const grad=nid.createLinearGradient(0,height,0,0);
+  // Light blue (sky) base colors
+  const skyRedBottom = 173; // rgb(173, 216, 230)
+  const skyGreenBottom = 216;
+  const skyBlueBottom = 230;
 
-  var rb=208;//255
-  var gb=217;//222
-  var bb=218;//69
+  const skyRedTop = 135;
+  const skyGreenTop = 206;
+  const skyBlueTop = 250;
 
-  var blue_bottom=bb+darkness;
-  if(darkness>128){
-    blue_bottom=255-(darkness-128);
-  }
-  var green_bottom=gb-darkness;
-  var red_bottom=rb-darkness;
+  // Purple (space) colors
+  const spaceRedBottom = 0;
+  const spaceGreenBottom = 0;
+  const spaceBlueBottom = 100;
 
-  var red_top=50-darkness/4;
-  var green_top=37-darkness/4;
-  var blue_top=100-darkness/4;
-  
-  if(red_top<0)
-    red_top=0;
-  if(green_top<0)
-    green_top=0;
-  if(blue_top<0)
-    blue_top=0;
+  const spaceRedTop = 0;
+  const spaceGreenTop = 0;
+  const spaceBlueTop = 50;
 
-  if(red_bottom<0)
-    red_bottom=0;
-if(green_bottom<0)
-    green_bottom=0;
-if(blue_bottom<0)
-    blue_bottom=0;
+  // Interpolate colors based on darkness
+  const blend = Math.min(darkness / 700, 1); // Normalize darkness to range [0, 1]
 
+  // Bottom colors interpolation
+  const redBottom = Math.round(skyRedBottom * (1 - blend) + spaceRedBottom * blend);
+  const greenBottom = Math.round(skyGreenBottom * (1 - blend) + spaceGreenBottom * blend);
+  const blueBottom = Math.round(skyBlueBottom * (1 - blend) + spaceBlueBottom * blend);
 
+  // Top colors interpolation
+  const redTop = Math.round(skyRedTop * (1 - blend) + spaceRedTop * blend);
+  const greenTop = Math.round(skyGreenTop * (1 - blend) + spaceGreenTop * blend);
+  const blueTop = Math.round(skyBlueTop * (1 - blend) + spaceBlueTop * blend);
 
+  // Apply interpolated colors to the gradient
+  grad.addColorStop(0, `rgb(${redBottom},${greenBottom},${blueBottom})`);
+  grad.addColorStop(1, `rgb(${redTop},${greenTop},${blueTop})`);
 
-  grad.addColorStop(0,"rgb("+red_bottom+","+green_bottom+","+blue_bottom+")");
-  grad.addColorStop(1, "rgb("+red_top+","+green_top+","+blue_top+")"); 
-
-  nid.fillStyle=grad;
-
-  nid.fillRect(0,0,width,height);
-
+  nid.fillStyle = grad;
+  nid.fillRect(0, 0, width, height);
 }
