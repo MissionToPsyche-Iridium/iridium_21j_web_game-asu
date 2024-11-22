@@ -148,7 +148,7 @@
       // Gradually increase darkness for gradient transition
       if (darkness < 1000) darkness += 0.3; // Adjust this value for speed
 
-      // Shift stars for animation in Phase 2
+      // Shift stars for animation
       star_shift += 1.5;
 
       if (star_shift > height) {
@@ -156,7 +156,7 @@
       }
 
     } else {
-      // Phase 0: Initial static background
+      // Initial static background
       graphics.drawImage(background, 0, 0, window_w, window_h);
     }
   }
