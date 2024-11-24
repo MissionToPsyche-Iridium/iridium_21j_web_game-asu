@@ -29,8 +29,8 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    let animeGirl = new Image();
-    animeGirl.src = 'spaceship.png'; // Change the character image here
+    let spaceshipImage = new Image();
+    spaceshipImage.src = 'spaceship.png'; // Change the character image here
 
     let asteroidImage = new Image();
     asteroidImage.src = 'asteroid.png'; // Change the asteroid image here
@@ -41,7 +41,8 @@
         width: 100,
         height: 200,
         speed: 15,
-        dx: 0
+        dx: 0,
+        dy: 0
     };
 
     let asteroids = [];
@@ -49,10 +50,13 @@
     let score = 0;
     let difficulty=0.02;
     let global_speed_factor=0;
+    let paused = false;
 
     let avoid_count=0;
     let high_score=0;
     let avoidlim=5;
+    let lives = 3;
+    let gameOver = false;
 
     document.addEventListener('keydown', keyDownHandler);
     document.addEventListener('keyup', keyUpHandler);
@@ -71,11 +75,13 @@
     function keyDownHandler(e) {
         if (e.key === 'ArrowLeft') spaceship.dx = -spaceship.speed;
         else if (e.key === 'ArrowRight') spaceship.dx = spaceship.speed;
-        //if (e.key === ' ') shoot();
+        else if (e.key === 'ArrowUp') spaceship.dy = -spaceship.speed;
+        else if (e.key === 'ArrowDown') spaceship.dy = spaceship.speed;
     }
 
     function keyUpHandler(e) {
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') spaceship.dx = 0;
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') spaceship.dy = 0;
     }
 
     function shoot() {
@@ -88,10 +94,18 @@
     }
 
     function update() {
+        if(gameOver)
+        {
+            return;
+        }
+
         spaceship.x += spaceship.dx;
+        spaceship.y += spaceship.dy;
 
         if (spaceship.x < 0) spaceship.x = 0;
         if (spaceship.x + spaceship.width > canvas.width) spaceship.x = canvas.width - spaceship.width;
+        if (spaceship.y < 0) spaceship.y = 0;
+        if (spaceship.y + spaceship.height > canvas.height) spaceship.y = canvas.height - spaceship.height;
 
         bullets.forEach((bullet, index) => {
             bullet.y -= 10;
@@ -105,6 +119,11 @@
           if(avoid_count>avoidlim){
             avoid_count=0;
             score++;
+
+            if(score % 5 === 0)
+            {
+                regainlife();
+            }
           }
           avoid_count++;
 
@@ -113,9 +132,13 @@
 
         //if spaceship asteroid collision
               if(isImpact(spaceship,asteroid)){
-                   asteroids.splice(index, 1);
-                    score--;
-
+                    asteroids.splice(index, 1);
+                    lives--;
+                    if(lives <= 0)
+                    {
+                        triggerGameOver();
+                        return;
+                    }
               }
 
         });
@@ -128,15 +151,17 @@
                     bullets.splice(bulletIndex, 1);
                     score++;
 
-              }
-             
-              
+                    if(score % 5 === 0)
+                    {
+                        regainlife();
+                    }
+                }
             });
         });
     }
 
     function drawSpaceship() {
-        ctx.drawImage(animeGirl, spaceship.x, spaceship.y, spaceship.width, spaceship.height);
+        ctx.drawImage(spaceshipImage, spaceship.x, spaceship.y, spaceship.width, spaceship.height);
     }
 
     function drawAsteroids() {
@@ -156,13 +181,93 @@
         ctx.fillStyle = "white";
         ctx.font = "20px Arial";
         ctx.fillText("Score: " + score + " high score: " + high_score, 10, 20);
+        ctx.fillText("Lives: " + lives, 10, 50);
     }
 
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
+    const menuOverlay = document.createElement('div');
+    menuOverlay.style.position = 'fixed';
+    menuOverlay.style.top = '0';
+    menuOverlay.style.left = '0';
+    menuOverlay.style.width = '100%';
+    menuOverlay.style.height = '100%';
+    menuOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    menuOverlay.style.color = 'white';
+    menuOverlay.style.display = 'flex';
+    menuOverlay.style.flexDirection = 'column';
+    menuOverlay.style.justifyContent = 'center';
+    menuOverlay.style.alignItems = 'center';
+    menuOverlay.style.zIndex = '1000';
+    menuOverlay.style.display = 'none';
+    document.body.appendChild(menuOverlay);
+
+    const resumeButton = document.createElement('button');
+    resumeButton.textContent = 'Resume Game';
+    resumeButton.style.margin = '10px';
+    resumeButton.style.padding = '10px 20px';
+    resumeButton.style.fontSize = '18px';
+
+    const restartButton = document.createElement('button');
+    restartButton.textContent = 'Restart Game';
+    restartButton.style.margin = '10px';
+    restartButton.style.padding = '10px 20px';
+    restartButton.style.fontSize = '18px';
+
+    const mainMenuButton = document.createElement('button');
+    mainMenuButton.textContent = 'Main Menu';
+    mainMenuButton.style.margin = '10px';
+    mainMenuButton.style.padding = '10px 20px';
+    mainMenuButton.style.fontSize = '18px';
+
+    menuOverlay.appendChild(resumeButton);
+    menuOverlay.appendChild(restartButton);
+    menuOverlay.appendChild(mainMenuButton);
+
+    function togglePause() {
+        paused = !paused;
+        menuOverlay.style.display = paused ? 'flex' : 'none';
+    }
+
+    function triggerGameOver() {
+        gameOver = true;
+        paused = false;
+        menuOverlay.style.display = 'flex';
+        resumeButton.style.display = 'none';
+        const gameOverText = document.createElement('h1');
+        gameOverText.textContent = 'Game Over';
+        menuOverlay.prepend(gameOverText);
+    }
+
+    function regainlife() {
+        if(lives < 3)
+        {
+           lives++;         
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            togglePause();
+        }
+    });
+
+    resumeButton.addEventListener('click', () => {
+        togglePause();
+    });
+
+    restartButton.addEventListener('click', () => {
+        location.reload();
+    });
+
+    mainMenuButton.addEventListener('click', () => {
+        location.href = '../index.html';
+    });
+
     function gameLoop() {
+        if (!paused && !gameOver) {
         clearCanvas();
         drawSpaceship();
         drawAsteroids();
@@ -170,26 +275,27 @@
         drawScore();
         update();
 
-      if(score<0)
-        score=0;
+        if (score < 0) score = 0;
 
+        difficulty = score / 100.0;
 
-        difficulty=score/100.0;
-
-        if(difficulty>1){
-          difficulty=1;
+        if (difficulty > 1) {
+            difficulty = 1;
         }
-        if(difficulty<0.01){
-          difficulty=0.01;
+        if (difficulty < 0.01) {
+            difficulty = 0.01;
         }
-        global_speed_factor=(difficulty*30);
-        avoidlim=global_speed_factor*10;
+        global_speed_factor = difficulty * 30;
+        avoidlim = global_speed_factor * 10;
 
-        if(score>high_score){
-          high_score=score;
+        if (score > high_score) {
+            high_score = score;
         }
-        
+
         if (Math.random() < difficulty) createAsteroid();
+        } else {
+            drawScore();
+        }
 
         requestAnimationFrame(gameLoop);
     }
