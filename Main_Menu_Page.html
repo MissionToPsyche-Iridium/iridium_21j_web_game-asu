@@ -7,10 +7,10 @@
     body {
       margin: 0;
       padding: 0;
-      background: #000; /* black background */
-      color: #FFF;      /* white text */
+      background: #000;
+      color: #FFF;
       font-family: Arial, sans-serif;
-      text-align: center; 
+      text-align: center;
     }
 
     .menu-container {
@@ -20,7 +20,6 @@
       align-items: center;
       height: 100vh;
     }
-
     h1 {
       margin-bottom: 20px;
     }
@@ -38,10 +37,71 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
-
     .button:hover {
       background: #0277bd;
     }
+
+    .disabled {
+      pointer-events: none;
+      opacity: 0.5;
+      border-color: #666;
+      background: #444 !important;
+    }
+
+    .toggle-container {
+      position: fixed;     
+      bottom: 20px;       
+      right: 20px;        
+      display: flex;      
+      align-items: center; 
+      gap: 8px;
+      font-size: 16px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 28px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; 
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #666;
+      transition: .4s;
+      border-radius: 28px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 4px;
+      background-color: #fff;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    .switch input:checked + .slider {
+      background-color: #0288d1;
+    }
+    .switch input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
   </style>
 </head>
 <body>
@@ -49,23 +109,55 @@
   <div class="menu-container">
     <h1>Main Menu</h1>
     <p>Choose your next destination!</p>
-    
+
     <!-- Link to Launch Preparation Dashboard Memorization Game -- Add in later -->
-    <!-- <a class="button" href="index.html">Launch Prep</a> -->
+    <!-- <a class="button" data-href="index.html">Launch Prep</a> -->
 
     <!-- Link to Launch Countdown -->
     <a class="button" href="index.html">Launch</a>
 
     <!-- Link to Post Launch Rocket Stabilization Game -- Add in Later -->
-    <!-- <a class="button" href="index.html">Rocket Stabilization</a> -->
+    <!-- <a class="button" data-href="index.html">Rocket Stabilization</a> -->
 
     <!-- Link to Asteroid Navigation mini-game -->
-    <a class="button" href="asteroid_game/index.html">Asteroid Navigation</a>
+    <a class="button game-button" data-href="asteroid_game/index.html">Asteroid Navigation</a>
 
     <!-- Link to Psyche Educational Observation Game -- Add in later -->
-    <!-- <a class="button" href="index.html">Launch</a> -->
-    
+    <!-- <a class="button" data-href="index.html">Launch</a> -->
   </div>
+
+  <!-- Storyline Toggle at Bottom Right -->
+  <div class="toggle-container">
+    <label for="storyline-switch">Storyline Mode</label>
+    <label class="switch">
+      <input type="checkbox" id="storyline-switch">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <script>
+    const gameButtons = document.querySelectorAll('.game-button');
+    const storylineSwitch = document.getElementById('storyline-switch');
+
+    disableOrEnableGames(false);
+
+    storylineSwitch.addEventListener('change', function() {
+      disableOrEnableGames(storylineSwitch.checked);
+    });
+
+    function disableOrEnableGames(storylineEnabled) {
+      gameButtons.forEach(btn => {
+        if (storylineEnabled) {
+          btn.classList.add('disabled');
+          btn.removeAttribute('href');
+        } else {
+          btn.classList.remove('disabled');
+          const originalHref = btn.getAttribute('data-href');
+          btn.setAttribute('href', originalHref);
+        }
+      });
+    }
+  </script>
 
 </body>
 </html>
