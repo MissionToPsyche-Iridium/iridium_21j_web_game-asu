@@ -1,0 +1,149 @@
+<html>
+<title>
+Pre-Launch Dashboard
+</title>
+  <body style="overflow:scroll;padding:0px 0px;margin:0px 0px;">
+    <script>
+      const nipi = 2 * Math.PI;
+      function drawCircle(graphics,x,y,radius){
+        graphics.lineWidth=5;
+        
+        graphics.beginPath();
+        graphics.arc(x,y,radius,0,nipi);
+        graphics.stroke();
+      }
+    </script>
+
+    <!-- canvas will always be the default width for hd-->
+    <center>
+    <canvas id="naka" width="1920" style="padding:0px 0px;margin:0px 0px;" height="1080"></canvas>
+    </center>
+
+
+    <!-- game logic which will take place here:-->
+    <script>
+
+      //mouse info
+      const m_width=25;
+      const m_height=25;
+      const m_radius=Math.floor(m_width,m_height)/2;
+
+
+      // button info
+      //the first button has priority if the mouse hovers over both
+      //when selecting the buttons make sure to get the top x,y, the whole mouse circle is within the button and/or flush with the top left corner of it
+      //for the bottom x2,y2, the mouse has to be pointing at the bottom right edge
+      let buttons_x=[983 , 946, 1178];
+      let buttons_y=[583 , 583, 619];
+      let buttons_x2=[999, 964, 1198];
+      let buttons_y2=[606, 606, 636];
+      let buttons_taisetsu_index=[];
+
+
+      //button handlers
+
+      function mouse_button_ga_koete(mousex,mousey,mouse_rad,index){
+      
+        let bx=buttons_x[index];
+        let by=buttons_y[index];
+        let bx2=buttons_x2[index];
+        let by2=buttons_y2[index];
+
+        let mx=mouse_x;
+        let my=mouse_y;
+        let mx2=mx+mouse_rad;
+        let my2=my+mouse_rad;
+
+
+        //if the far right of the mouse is past the far left of the button
+        //if the far left of the mouse is before the far right of the button
+        if(mx2 > bx && mx < bx2){
+          //same with y
+          if(my2 > by && my < by2){
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function nani_button_ga_koete(mousex,mousey,mouse_rad){
+        for(var i=0;i < buttons_x.length;i++){
+          if(mouse_button_ga_koete(mousex,mousey,mouse_rad,i)){
+            return i;
+          }
+        }
+        return -1;
+
+      }
+      function highlight_button(graphics,index){
+        graphics.fillStyle="rgba(255,255,202,0.3)";
+        let bx=buttons_x[index] - m_radius;
+        let by=buttons_y[index] -  m_radius;
+        let bx2=buttons_x2[index];
+        let by2=buttons_y2[index];
+
+        graphics.fillRect(bx,by,bx2 - bx,by2 - by);
+        
+      }
+
+
+
+      let mouse_x=0;
+      let mouse_y=0;
+
+      let clicked_index=-1;
+
+
+
+      let naka = new Image();
+      naka.src = "cockpit.png";
+
+      const draw = document.getElementById("naka");
+      const gazou = draw.getContext("2d");
+
+      draw.addEventListener("mousedown",function (hairu){
+        let x = hairu.clientX;
+        let y = hairu.clientY;
+        let koete=nani_button_ga_koete(x,y,m_radius);
+        if(koete!=-1){
+          clicked_index=koete;
+        }
+      });
+      draw.addEventListener("mousemove",function (hairu){
+        mouse_x = hairu.clientX;
+        mouse_y = hairu.clientY;
+      });
+
+
+      function kurikaesu(){
+        gazou.drawImage(naka,0,0,1920,1080);
+
+        //debug coordinates
+        gazou.fillStyle="#FFF"
+        gazou.font = "15px Arial";
+        gazou.fillText(mouse_x + "," + mouse_y,30,30);
+
+        let koete=nani_button_ga_koete(mouse_x,mouse_y,m_radius);
+
+        //render the mouse to hover over
+        if(koete!=-1){
+          document.documentElement.style.cursor = "pointer";
+          gazou.strokeStyle = "rgba(102,102,255,0.5)";
+        }else{
+          document.documentElement.style.cursor = "default";
+          gazou.strokeStyle = "rgba(255,255,102,0.5)";
+        }
+
+        if(clicked_index!=-1){
+          highlight_button(gazou,clicked_index);
+        }
+
+        drawCircle(gazou,mouse_x,mouse_y,m_radius);
+
+
+        requestAnimationFrame(kurikaesu);
+      }
+      kurikaesu();
+    </script>
+  </body>
+</html>
