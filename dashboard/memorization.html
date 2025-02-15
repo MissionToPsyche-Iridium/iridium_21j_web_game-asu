@@ -19,6 +19,8 @@ Pre-Launch Dashboard
     <canvas id="naka" width="1920" style="padding:0px 0px;margin:0px 0px;" height="1080"></canvas>
     </center>
 
+    <audio id="clickSound" src="click.mp3" preload="auto"></audio>
+    <audio id="failSound" src="fail.mp3" preload="auto"></audio>
 
     <!-- game logic which will take place here:-->
     <script>
@@ -44,7 +46,6 @@ Pre-Launch Dashboard
       let buttons_y2=[264, 606, 606, 636, 635, 275];
       let buttons_taisetsu_index=[];
       let button_chigau=[];
-
 
       //button handlers
       function mouse_button_ga_koete(mousex,mousey,mouse_rad,index){
@@ -81,7 +82,6 @@ Pre-Launch Dashboard
           }
         }
         return -1;
-
       }
 
       // Highlight the button at the given index
@@ -99,7 +99,7 @@ Pre-Launch Dashboard
         gazou.strokeRect(bx-m_radius, by-m_radius, bx2 - bx + m_radius, by2 - by + m_radius);
         gazou.shadowBlur = 0;  // Reset shadow
       }
-      
+
       // Highlight the button with a green circle at the given index
       function highlightButton_midori(index) {
        
@@ -160,17 +160,20 @@ Pre-Launch Dashboard
         return distance_squared <= radius ** 2;
       }*/
 
-     
       draw.addEventListener("mousedown",function (hairu){
         let x = hairu.clientX;
         let y = hairu.clientY;
         let koete=nani_button_ga_koete(x,y,m_radius);
         if(koete!=-1){
           clicked_index=koete;
+          // added the click sound on buttons
+          var clickSound = document.getElementById("clickSound");
+          clickSound.currentTime = 0;
+          clickSound.play();
         }
 
-        /// Start the game when the engine button is clicked
-          // Allow user to input only during their turn
+        // Start the game when the engine button is clicked
+        // Allow user to input only during their turn
         let clickedButtonIndex = nani_button_ga_koete(x, y, m_radius);
         if(clickedButtonIndex == 0 && !engine_started){
           startGame();
@@ -214,7 +217,8 @@ Pre-Launch Dashboard
           }
         }
       }
-      //added
+  
+      
       function drawRedButtonOverlay() {
         // Draw a circular overlay for the red button
         gazou.beginPath();
@@ -272,10 +276,8 @@ Pre-Launch Dashboard
       function generateRandomSequence() {
         random_sequence = [];
 
-
         let hajime=1;
         let kiri=buttons_x.length - hajime;
-
 
         let previous=-1;
         let randomIndex;
@@ -405,7 +407,12 @@ Pre-Launch Dashboard
           gazou.fillStyle = "#FFFFFF";
           gazou.font = "50px Arial";
           gazou.textAlign = "center";
+          var failSound = document.getElementById("failSound");
+          failSound.currentTime = 0;
+          failSound.play();
           gazou.fillText("Incorrect! Game over.", 960, 400); 
+          resetGame();
+
         } else if (final_message == 2){
           gazou.fillStyle = "rgba(0, 0, 0, 0.6)";
           gazou.fillRect(600, 350, 720, 100);
