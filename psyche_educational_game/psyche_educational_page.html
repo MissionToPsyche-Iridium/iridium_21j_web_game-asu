@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Psyche Asteroid Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+            font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #asteroid {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            background: url('psyche_asteroid.png') no-repeat center/contain;
+        }
+
+        .hotspot {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            transition: border-color 0.2s ease-in-out;
+        }
+
+        .hotspot:hover {
+            border-color: white;
+        }
+
+        .hotspot.selected {
+            border-color: white;
+        }
+
+        #satellite {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: url('psyche_satellite.png') no-repeat center/contain;
+            animation: orbit 15s linear infinite;
+        }
+
+        @keyframes orbit {
+            0%   { transform: rotate(0deg) translateX(250px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(250px) rotate(-360deg); }
+        }
+
+        #info-pane {
+            position: fixed;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(50, 50, 50, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            width: 300px;
+            border: 2px solid white;
+        }
+
+        #close-btn {
+            margin-top: 10px;
+            padding: 5px;
+            cursor: pointer;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="asteroid">
+        <div class="hotspot" style="top: 30%; left: 40%;" onclick="showInfo(this, 'Crater A', 'This crater is believed to be one of the oldest impact sites on Psyche.')"></div>
+        <div class="hotspot" style="top: 60%; left: 70%;" onclick="showInfo(this, 'Metal Deposit', 'This region has a high concentration of nickel and iron, indicating Psyche’s metallic nature.')"></div>
+        <div class="hotspot" style="top: 50%; left: 20%;" onclick="showInfo(this, 'Magnetic Anomaly', 'Scientists detected unusual magnetic readings in this area, suggesting remnants of a planetary core.')"></div>
+    </div>
+
+    <div id="satellite"></div>
+</div>
+
+<div id="info-pane">
+    <h2 id="info-title">Title</h2>
+    <p id="info-text">Description</p>
+    <button id="close-btn" onclick="closeInfo()">Close</button>
+</div>
+
+<script>
+    let selectedHotspot = null;
+
+    function showInfo(element, title, text) {
+        if (selectedHotspot) {
+            selectedHotspot.classList.remove('selected');
+        }
+
+        selectedHotspot = element;
+        selectedHotspot.classList.add('selected');
+
+        document.getElementById('info-title').innerText = title;
+        document.getElementById('info-text').innerText = text;
+        document.getElementById('info-pane').style.display = 'block';
+    }
+
+    function closeInfo() {
+        document.getElementById('info-pane').style.display = 'none';
+
+        if (selectedHotspot) {
+            selectedHotspot.classList.remove('selected');
+            selectedHotspot = null;
+        }
+    }
+</script>
+
+</body>
+</html>
