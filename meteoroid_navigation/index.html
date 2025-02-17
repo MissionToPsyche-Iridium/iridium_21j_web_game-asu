@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Shooter</title>
+    <title>Meteoroid Navigation</title>
     <style>
         body {
             margin: 0;
@@ -30,15 +30,15 @@
     canvas.height = window.innerHeight;
 
     let spaceshipImage = new Image();
-    spaceshipImage.src = 'spaceship.png'; // Change the character image here
+    spaceshipImage.src = '../assets/images/psyche_satellite.png'; // Change the character image here
 
-    let asteroidImage = new Image();
-    asteroidImage.src = 'asteroid.png'; // Change the asteroid image here
+    let meteoroidImage = new Image();
+    meteoroidImage.src = 'meteoroid.png'; // Change the asteroid image here
 
     const spaceship = {
         x: canvas.width / 2 - 50,
         y: canvas.height - 200,
-        width: 100,
+        width: 200,
         height: 200,
         speed: 15,
         dx: 0,
@@ -166,7 +166,7 @@
 
     function drawAsteroids() {
         asteroids.forEach(asteroid => {
-            ctx.drawImage(asteroidImage, asteroid.x, asteroid.y, asteroid.width, asteroid.height);
+            ctx.drawImage(meteoroidImage, asteroid.x, asteroid.y, asteroid.width, asteroid.height);
         });
     }
 
@@ -302,6 +302,3 @@
 
     gameLoop();
 </script>
-
-</body>
-</html>
