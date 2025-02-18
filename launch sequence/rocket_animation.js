@@ -5,12 +5,12 @@ let f4=new Image();
 let f5=new Image();
 let f6=new Image();
 
-f1.src="jets_animation/1.png";
-f2.src="jets_animation/2.png";
-f3.src="jets_animation/3.png";
-f4.src="jets_animation/4.png";
-f5.src="jets_animation/5.png";
-f6.src="jets_animation/6.png";
+f1.src="../assets/images/jets_animation/1.png";
+f2.src="../assets/images/jets_animation/2.png";
+f3.src="../assets/images/jets_animation/3.png";
+f4.src="../assets/images/jets_animation/4.png";
+f5.src="../assets/images/jets_animation/5.png";
+f6.src="../assets/images/jets_animation/6.png";
 
 let listed=[f1,f2,f3,f4,f5,f6];
 

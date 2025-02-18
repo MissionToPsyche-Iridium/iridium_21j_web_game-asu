@@ -1,0 +1,282 @@
+/* Define Layering */
+@layer background, objects, ui;
+
+/* General Styling */
+@layer ui {
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: black;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+    }
+}
+
+/* Background Elements */
+@layer background {
+    .background-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: black;
+        overflow: hidden;
+        z-index: 1; /* Move to the very back */
+    }
+
+    /* Stars - Furthest Back */
+    .stars-container {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1; /* Stars should be the farthest back */
+    }
+
+    .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: white;
+        border-radius: 50%;
+        opacity: 0;
+        animation: twinkle infinite alternate ease-in-out;
+    }
+
+    /* Twinkling Animation */
+    @keyframes twinkle {
+        0% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.2); }
+        100% { opacity: 0.5; transform: scale(1); }
+    }
+}
+
+/* Middle Objects (Asteroid & Satellite) */
+@layer objects {
+    /* Asteroid - Above Stars but Below UI */
+    .asteroid {
+        position: absolute;
+        width: 650px;
+        height: auto;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.7;
+        animation: asteroid-move 10s infinite linear alternate;
+        z-index: 2; /* Move above stars */
+    }
+
+    /* Floating Asteroid */
+    @keyframes asteroid-move {
+        from { transform: translate(-50%, -50%) scale(1); }
+        to { transform: translate(-50%, -52%) scale(1.05); }
+    }
+
+    /* Satellite - Orbits Around the Asteroid */
+    .satellite {
+        position: absolute;
+        width: 200px;
+        height: auto;
+        top: 50%;
+        left: 50%;
+        transform-origin: center;
+        animation: orbit 30s linear infinite;
+        z-index: 2; /* Same layer as asteroid */
+    }
+
+    /* Orbit Animation */
+    @keyframes orbit {
+        0% {
+            transform: rotate(0deg) translateX(400px) rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg) translateX(400px) rotate(-360deg);
+        }
+    }
+}
+
+/* UI Elements */
+@layer ui {
+    .game-title, .menu-container, .toggle-container {
+        position: relative;
+        z-index: 3; /* UI must be above asteroid & satellite */
+    }
+
+    /* Game Title */
+    .game-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 64px;
+        font-weight: 700;
+        color: #81d4fa;
+        text-shadow: 0 0 10px #81d4fa, 0 0 20px #0288d1, 0 0 30px #0277bd;
+        position: absolute;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: float 4s infinite ease-in-out alternate;
+    }
+
+    /* Floating effect */
+    @keyframes float {
+        from { transform: translateX(-50%) translateY(0); }
+        to { transform: translateX(-50%) translateY(10px); }
+    }
+
+    /* Stacked Buttons */
+    .menu-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* Buttons */
+    .button {
+        text-decoration: none;
+        font-size: 18px;
+        font-weight: bold;
+        color: #FFF;
+        border-radius: 10px;
+        background: linear-gradient(45deg, #0288d1, #01579b);
+        padding: 15px 40px;
+        border: 2px solid #81d4fa;
+        display: inline-block;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(2, 136, 209, 0.8);
+        width: 250px;
+        text-align: center;
+    }
+
+    .button:hover {
+        background: linear-gradient(45deg, #0277bd, #004c8c);
+        box-shadow: 0 0 15px rgba(2, 136, 209, 1);
+    }
+
+    /* Disabled Button */
+    .disabled {
+        pointer-events: none;
+        opacity: 0.5;
+        border-color: #666;
+        background: #444 !important;
+    }
+
+    /* Toggle Switch */
+    .toggle-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, #444, #222);
+        transition: 0.4s;
+        border-radius: 34px;
+    }
+
+    /* Toggle Ball */
+    .slider::before {
+        content: "";
+        position: absolute;
+        left: 4px;
+        bottom: 4px;
+        width: 26px;
+        height: 26px;
+        background: white;
+        border-radius: 50%;
+        transition: 0.4s;
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    }
+
+    .switch input:checked + .slider {
+        background: linear-gradient(45deg, #0288d1, #01579b);
+        box-shadow: 0 0 10px rgba(2, 136, 209, 0.7);
+    }
+
+    .switch input:checked + .slider::before {
+        transform: translateX(26px);
+    }
+
+    /* ================================= */
+    /* 📜 Credits Pop-up Modal Styling  */
+    /* ================================= */
+    .modal {
+        display: none;  /* Keeps it hidden at the start */
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        visibility: hidden;  /* Ensure it's completely hidden */
+        opacity: 0;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .modal.show {
+        visibility: visible;  /* Make it appear */
+        opacity: 1;
+    }
+
+    .modal-content {
+        background: #1a1a1a;
+        padding: 20px;
+        border-radius: 10px;
+        width: 50%;
+        max-width: 500px;
+        color: white;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        text-align: center;
+        position: relative;
+    }
+
+    .close-button {
+        position: absolute;
+        right: 15px;
+        top: 10px;
+        font-size: 24px;
+        cursor: pointer;
+        color: white;
+        transition: 0.3s;
+    }
+
+    .close-button:hover {
+        color: red;
+    }
+}
+
+
