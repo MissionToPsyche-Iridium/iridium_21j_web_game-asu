@@ -1,8 +1,58 @@
 <html>
-<title>
-Pre-Launch Dashboard
-</title>
-  <body style="overflow:scroll;padding:0px 0px;margin:0px 0px;">
+  <head>
+    <title>
+      Pre-Launch Dashboard
+    </title>
+        <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body id="body" style="overflow:scroll;padding:0px 0px;margin:0px 0px;">
+
+
+
+
+    <!-- begin pre game overlay and stuff-->
+    <noscript>
+      <div id="error" style="z-index:10;position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(128,128,128,1);">
+        <center>
+          <h1 style="color:red;"> This game requires Javascript to run. </h1>
+        </center>
+      </div>
+    </noscript>
+    <div id="overlay">
+        <div style="" class="fancy_border_popup">
+        <center>
+          <h3>How to play</h3>
+        </center>
+          <ul>
+            <li>click on the red button</li>
+            <li>follow the green circles and carefully memorize the button it highlighted</li>
+            <li>press any key on the keyboard(any letter) to go to the next button</li>
+            <li>once no more buttons are circled, follow the previous combination in the exact order</li>
+            <li>if you clicked all the buttons circled green in the correct order, you win the game</li>
+          </ul>
+        <center>
+          <button onclick="hide_overlay()"  class="fancy_button">got it</button>
+        </center>
+        </div>
+    </div>
+    <script>
+      //overlay script
+      const show_style="display:flex;justify-content: center;align-items: center;z-index:10;position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(128,128,128,0.5);"
+      const hide_style="display:none;"
+      const overlay=document.getElementById("overlay");
+
+      function show_overlay(){
+        overlay.style=show_style;
+      }
+      function hide_overlay(){
+        overlay.style=hide_style;
+      }
+      show_overlay();
+    </script>
+  <!-- end pre game overlay and stuff-->
+
+
+
     <script>
       const nipi = 2 * Math.PI;
       function drawCircle(graphics,x,y,radius){
@@ -19,6 +69,9 @@ Pre-Launch Dashboard
     <canvas id="naka" width="1920" style="padding:0px 0px;margin:0px 0px;" height="1080"></canvas>
     </center>
 
+    <audio id="clickSound" src="click.mp3" preload="auto"></audio>
+    <audio id="failSound" src="fail.mp3" preload="auto"></audio>
+    <audio id="successSound" src="success.mp3" preload="auto"></audio>
 
     <!-- game logic which will take place here:-->
     <script>
@@ -33,18 +86,19 @@ Pre-Launch Dashboard
       let red_button_y = 250;
       let red_button_radius = 15.8;
 
+      let soundPlayed = false;
+
       // button info
       //the first button has priority if the mouse hovers over both
       //when selecting the buttons make sure to get the top x,y, the whole mouse circle is within the button and/or flush with the top left corner of it
       //for the bottom x2,y2, the mouse has to be pointing at the bottom right edge
       //index zero is the big red button
-      let buttons_x=[953, 983 , 946, 1178];
-      let buttons_y=[249, 583 , 583, 619];
-      let buttons_x2=[974, 999, 964, 1198];
-      let buttons_y2=[264, 606, 606, 636];
+      let buttons_x=[953, 983, 946, 1178, 1211, 1557, 375, 411, 446, 731, 641, 943];
+      let buttons_y=[249, 583, 583, 619, 618, 258, 645, 641, 641, 743, 743, 15];
+      let buttons_x2=[974, 999, 964, 1198, 1232, 1584, 399, 433, 469, 750, 659, 983];
+      let buttons_y2=[264, 606, 606, 636, 635, 275, 649, 649, 649, 753, 756 ,48];
       let buttons_taisetsu_index=[];
       let button_chigau=[];
-
 
       //button handlers
       function mouse_button_ga_koete(mousex,mousey,mouse_rad,index){
@@ -81,7 +135,6 @@ Pre-Launch Dashboard
           }
         }
         return -1;
-
       }
 
       // Highlight the button at the given index
@@ -99,6 +152,7 @@ Pre-Launch Dashboard
         gazou.strokeRect(bx-m_radius, by-m_radius, bx2 - bx + m_radius, by2 - by + m_radius);
         gazou.shadowBlur = 0;  // Reset shadow
       }
+
       // Highlight the button with a green circle at the given index
       function highlightButton_midori(index) {
        
@@ -146,12 +200,14 @@ Pre-Launch Dashboard
       let ticker=true;
       let ticker_prev=true;
       let before_draw_ticks=0;
+      let space_click=false;
 
       let naka = new Image();
       naka.src = "cockpit.png";
 
       const draw = document.getElementById("naka");
       const gazou = draw.getContext("2d"); 
+      const body = document.getElementById("body");
 
       // Check if the mouse is inside the circle (added) no need for this
       /* function isMouseOverCircle(mousex, mousey, center_x, center_y, radius) {
@@ -159,17 +215,20 @@ Pre-Launch Dashboard
         return distance_squared <= radius ** 2;
       }*/
 
-     
       draw.addEventListener("mousedown",function (hairu){
-        let x = hairu.clientX;
-        let y = hairu.clientY;
+        let x = hairu.pageX;
+        let y = hairu.pageY;
         let koete=nani_button_ga_koete(x,y,m_radius);
         if(koete!=-1){
           clicked_index=koete;
+          // added the click sound on buttons
+          var clickSound = document.getElementById("clickSound");
+          clickSound.currentTime = 0;
+          clickSound.play();
         }
 
-        /// Start the game when the engine button is clicked
-          // Allow user to input only during their turn
+        // Start the game when the engine button is clicked
+        // Allow user to input only during their turn
         let clickedButtonIndex = nani_button_ga_koete(x, y, m_radius);
         if(clickedButtonIndex == 0 && !engine_started){
           startGame();
@@ -178,6 +237,7 @@ Pre-Launch Dashboard
           actually_drawing=false;
           render_animation=true;
           button_chigau.push(0);
+          user_sequence = [];
         }else if (clickedButtonIndex !== -1 && !render_animation && user_sequence.length < random_sequence.length) {
             console.log(`User clicked button: ${clickedButtonIndex}`);
             checkUserSequence(clickedButtonIndex);  // Check if the user's input is correct
@@ -185,9 +245,12 @@ Pre-Launch Dashboard
 
       });
 
+      body.addEventListener("keyup", function(hairu){
+        space_click=true;
+      });
       draw.addEventListener("mousemove",function (hairu){
-        mouse_x = hairu.clientX;
-        mouse_y = hairu.clientY;
+        mouse_x = hairu.pageX;
+        mouse_y = hairu.pageY;
       });
 
       function checkUserSequence(index){
@@ -207,13 +270,37 @@ Pre-Launch Dashboard
 
           //user output
           if(atteru){
-            final_message=2;
+            final_message=2; //success
+
+            // Play success sound ONCE
+            let successSound = document.getElementById("successSound");
+            successSound.currentTime = 0;
+            
+            successSound.play();
+
           }else{
-            final_message=1;
+            final_message=1; //fail
+
+            // Play fail sound ONCE
+            let failSound = document.getElementById("failSound");
+            failSound.currentTime = 0;
+            
+            failSound.play();
           }
         }
       }
-      //added
+  
+      function draw_text(text,x){
+          gazou.fillStyle = "rgba(0, 0, 0, 0.6)";
+          gazou.fillRect(600, 350, 720, 100);
+
+          gazou.fillStyle = "#FFFFFF";
+          gazou.font = "50px Arial";
+          gazou.textAlign = "center";
+          gazou.fillText(text, 960, x);
+
+      }
+      
       function drawRedButtonOverlay() {
         // Draw a circular overlay for the red button
         gazou.beginPath();
@@ -255,6 +342,8 @@ Pre-Launch Dashboard
         gazou.drawImage(naka, 0, 0, 1920, 1080);
         render_animation=false;
         actually_drawing=false;
+        //added
+        button_chigau = button_chigau.filter(index => index !== 0); //Remove red button from restricted list
       }
 
       // Start the game by generating a sequence and showing the buttons
@@ -271,14 +360,18 @@ Pre-Launch Dashboard
       function generateRandomSequence() {
         random_sequence = [];
 
-
         let hajime=1;
         let kiri=buttons_x.length - hajime;
 
-
         let previous=-1;
         let randomIndex;
-        for (let i = 1; i < buttons_x.length; i++) {
+
+        let max_length=5;
+
+        if(buttons_x.length < max_length){
+          max_length=buttons_x.length;
+        }
+        for (let i = 1; i < max_length; i++) {
           randomIndex = hajime + Math.floor(Math.random() * kiri);
 
           while(randomIndex == previous){
@@ -303,13 +396,9 @@ Pre-Launch Dashboard
         }
         return false;
       }
-      
 
-
-            
       let actually_drawing=false;
       let animation_itterator=0;
-    
       
       function kurikaesu(){
         gazou.drawImage(naka,0,0,1920,1080);
@@ -319,24 +408,12 @@ Pre-Launch Dashboard
         // before engine start (added)
         if (!engine_started) {
           drawArrow();
-          gazou.fillStyle = "rgba(0, 0, 0, 0.6)";
-          gazou.fillRect(600, 350, 720, 100);
-
-          gazou.fillStyle = "#FFFFFF";
-          gazou.font = "50px Arial";
-          gazou.textAlign = "center";
-          gazou.fillText("Click Engine Button Here to Start", 960, 400);
+          draw_text("Click Engine Button Here to Start", 400);
         }
 
         //added
         if (start_message) {
-          gazou.fillStyle = "rgba(0, 0, 0, 0.6)";  // Background for the message
-          gazou.fillRect(600, 400, 720, 100);  // Centered rectangle for the message
-
-          gazou.fillStyle = "#FFFFFF";  // White text
-          gazou.font = "50px Arial";
-          gazou.textAlign = "center";
-          gazou.fillText("Engine started! Get ready to play.", 960, 470);  // Centered text
+          draw_text("Engine started! Get ready to play.", 400);  // Centered text
 
           // Set a timer to hide the message after 2 seconds (2000 milliseconds)
         }
@@ -372,8 +449,6 @@ Pre-Launch Dashboard
           }
         }else{
 
-       
-
           //wait one tick before rendering
           if(!actually_drawing){
             if(is_tick()){
@@ -381,14 +456,17 @@ Pre-Launch Dashboard
                 actually_drawing=true;
                 animation_itterator=0;
                 start_message=false;
+                space_click=false;
               }
               before_draw_ticks++;
             }
           }else{
             highlightButton_midori(random_sequence[animation_itterator]);
-            if(is_tick()){
+            draw_text("Press any key to continue",400);
+            if(space_click){
               
-              animation_itterator++;
+                animation_itterator++;
+                space_click=false;
               if(animation_itterator >= random_sequence.length){
                 render_animation=false;
                 actually_drawing=false;
@@ -397,28 +475,27 @@ Pre-Launch Dashboard
               }
             }
           }
-            //gray
+
+          //gray
           document.documentElement.style.cursor = "default";
           Mouse_style = "rgba(66,66,66,0.5)";
-
-
         }
 
-
         if(final_message == 1){
-          gazou.fillStyle = "rgba(0, 0, 0, 0.6)";
-          gazou.fillRect(600, 350, 720, 100);
-          gazou.fillStyle = "#FFFFFF";
-          gazou.font = "50px Arial";
-          gazou.textAlign = "center";
-          gazou.fillText("Incorrect! Game over.", 960, 400); 
+          draw_text("Incorrect! Game over.", 400); 
+
+          setTimeout(() => {
+            resetGame();
+          }, 500);
+
         } else if (final_message == 2){
-          gazou.fillStyle = "rgba(0, 0, 0, 0.6)";
-          gazou.fillRect(600, 350, 720, 100);
-          gazou.fillStyle = "#FFFFFF";
-          gazou.font = "50px Arial";
-          gazou.textAlign = "center";
-          gazou.fillText("Congratulations! You completed the sequence.", 960, 400); 
+         
+          draw_text("Congratulations! You completed the sequence.", 400); 
+
+          // Redirecting to launch.html
+          setTimeout(() => {
+            window.location.href = "launch sequence/index.html";
+          }, 3000);
         }
       
         gazou.strokeStyle = Mouse_style;
