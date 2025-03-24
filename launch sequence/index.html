@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="jp ru cn">
+<html lang="en">
 <head>
 <title>Lift Off!</title>
 
@@ -43,11 +43,12 @@
 <div style="display:none;" id="hidden_content"><center>
     <h1>Take OFF!</h1>
     <h1>choose your next destination!</h1>
-    <a class="button" href="../meteoroid_navigation/index.html">Meteoroid Navigation</a>
-
+    <a class="button" href="../memorization/index.html">Restart Game</a>
     <br>
-    <a class="button" href="../index.html">Main Menu</a>    
-  </center>
+    <a class="button game-button" href="../meteoroid_navigation/index.html">☄️ Meteoroid Navigation</a>
+    <br>
+    <a class="button" href="../index.html">Main Menu</a>
+    </center>
   </div>
 
 <canvas id="gameCanvas"></canvas>
@@ -57,6 +58,159 @@
 <script src="stars.js"></script>
 <script src="bird.js"></script>
 <script>
+
+  let isPaused = false;
+  let animationFrameId;
+
+  var countdown = 10; // Global countdown variable
+  var countdownInterval = null; // Reference to the countdown interval
+  var countdownElement = null; // Store countdown display
+
+  // Listen for the Escape key to pause/unpause the game
+  document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+          if (!isPaused) { // if not paused yet
+              pauseGame();
+          } else { // if already paused
+              resumeGame();
+          }
+      }
+  });
+
+  // Function to pause the game
+  function pauseGame(){
+      if (isPaused) return;
+      isPaused = true;
+
+      // Hide the "Press SPACE to start" text when the game is paused
+      let welcomeText = document.getElementById("welcome");
+      if (welcomeText) {
+        welcomeText.style.opacity = "0";
+      }
+
+      // Stop the game loop
+      if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+      }
+
+      let countText = document.getElementById("countdown-timer");
+      if (countText) {
+        countText.style.opacity = "0";
+      }
+
+      // Pause countdown timer
+      if (countdownInterval) {
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+      }
+
+      // Pause all sounds
+      countdownSound.pause();
+      flightSound.pause();
+
+      backgroundPauseMenu();
+  }
+
+  // Function to resume the game
+  function resumeGame() {
+    if (!isPaused) return;
+    isPaused = false;
+
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+
+    let welcomeText = document.getElementById("welcome");
+    if (welcomeText) {
+        welcomeText.style.opacity = "1";
+    }
+
+    // Show countdown again
+    let countText = document.getElementById("countdown-timer");
+    if (countText) {
+        countText.style.opacity = "1";
+    }
+
+    // Resume countdown if still running
+    if (is_counting_down && countdown > 0) {
+        restartCountdown();
+    }
+
+    // After pressed space:
+    if(!welcomeText && flightSound.currentTime === 0){
+        countdownSound.play(); // Resume countdown sound
+    } else if (flightSound.currentTime !== 0) {
+        flightSound.play(); // Resume flight sound
+    }
+
+    looped();
+  }
+
+
+  // Function to reset the game
+  function restartGame(){
+      isPaused = false;
+      
+      // Stop the previous game loop before starting a new one
+      if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+      }
+
+      window.location.href = "../memorization/index.html";
+  }
+
+  // Function to go back to the main menu
+  function backToMainMenu(){
+      window.location.href = "../index.html";
+  }
+
+  // Function to background the pause menu
+  function backgroundPauseMenu(){
+      graphics.fillStyle = "rgba(0, 0, 0, 0.9)"
+      graphics.fillRect(0, 0, canvas.width, canvas.height);
+
+      graphics.fillStyle = "#FFFFFF";
+      graphics.font = "50px Arial";
+      graphics.textAlign = "center";
+      graphics.textBaseline = "middle";
+      
+      let centerX = canvas.width / 2;
+      let centerY = canvas.height / 2;
+
+      graphics.fillText("Game Paused", centerX, centerY - 100);
+     
+      // Buttons
+      backgroundPauseButton("Resume Game", centerX, centerY - 20, resumeGame);
+      backgroundPauseButton("Restart Game", centerX, centerY + 50, restartGame);
+      backgroundPauseButton("Main Menu", centerX, centerY + 120, backToMainMenu);
+  }
+
+  // Function to background a pause menu button
+  function backgroundPauseButton(text, x, y, action) {
+      let buttonWidth = 300;
+      let buttonHeight = 60;
+
+      graphics.fillStyle = "#444"; // Dark background for the button
+      graphics.fillRect(x - buttonWidth / 2, y - buttonHeight / 2, buttonWidth, buttonHeight);
+
+      graphics.fillStyle = "#FFF"; // White text
+      graphics.font = "30px Arial";
+      graphics.fillText(text, x, y);
+
+      // Event listener for clicking buttons
+      canvas.addEventListener("mousedown", function (event) {
+          let mouseX = event.clientX;
+          let mouseY = event.clientY;
+
+          if (
+              mouseX >= x - buttonWidth / 2 && mouseX <= x + buttonWidth / 2 &&
+              mouseY >= y - buttonHeight / 2 && mouseY <= y + buttonHeight / 2
+          ) {
+              action();
+          }
+      });
+  }
+
   //this is the auto load function load the background set the canvas size etc
 
   var window_h = window.innerHeight;
@@ -78,8 +232,8 @@
   nojets.src="nojets.png";
 
   let birdImage = new Image();
-  birdImage.src = "bird.png"
-  
+  birdImage.src = "bird.png"; // Bird image
+
   // Initialize birds
   initBirds(window_w, window_h);
 
@@ -232,7 +386,65 @@
     return is_base;
   }
 
+  function restartCountdown() {
+    if (countdown <= 0 || countdownInterval) return; // If already finished, do nothing
+
+    countdownInterval = setInterval(function() {
+        countdown--;
+        
+        if (countdown >= 0) {
+            if (countdownElement) countdownElement.innerHTML = countdown;
+        } else {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+            document.body.removeChild(countdownElement);
+            is_counting_down = false;
+
+            // Stop countdown sound
+            countdownSound.pause();
+            countdownSound.currentTime = 0;
+
+            // Play launch sound
+            flightSound.play();
+
+            // Start the rocket launch
+            start_flying();
+        }
+    }, 1000);
+  } 
+
+  // Countdown function to display counter before launch
+  function startCountdown() {
+    if (is_counting_down) return; // Prevent multiple countdowns
+
+    is_counting_down = true;
+
+    // Create or reuse countdown display
+    if (!countdownElement) {
+        countdownElement = document.createElement("div");
+        countdownElement.id = "countdown-timer";
+        document.body.appendChild(countdownElement);
+    }
+
+    countdownElement.style.position = "fixed";
+    countdownElement.style.top = "50%";
+    countdownElement.style.left = "50%";
+    countdownElement.style.transform = "translate(-50%, -50%)";
+    countdownElement.style.fontSize = "250px";
+    countdownElement.style.color = "white";
+    countdownElement.style.zIndex = "20";
+
+    countdownElement.innerHTML = countdown;
+
+    // Play countdown sound
+    countdownSound.play();
+
+    restartCountdown(); // Start or resume countdown
+  }
+
   function looped(){
+    if (isPaused) return;
+    
     // if the window got resized
     window_h = window.innerHeight
     window_w = window.innerWidth;
@@ -256,63 +468,18 @@
       if(is_base==1){
         draw_stay_pooping();
       }else{
-        populate_UI();
+        if (!isPaused) {
+          populate_UI();
+        }
       }
     }
 
-    requestAnimationFrame(looped);
+    animationFrameId = requestAnimationFrame(looped);
   }
 
   looped();
 
-  // Countdown function to display counter before launch
-  function startCountdown() {
-    if (is_counting_down) return; // Prevent multiple countdowns
-    is_counting_down = true;
-
-    var countdown = 10; // 10 second countdown
-    var countdownElement = document.createElement("div");
-
-    // Style the countdown display
-    countdownElement.style.position = "fixed";
-    countdownElement.style.top = "50%";
-    countdownElement.style.left = "50%";
-    countdownElement.style.transform = "translate(-50%, -50%)";
-    countdownElement.style.fontSize = "250px";
-    countdownElement.style.color = "white";
-    countdownElement.style.zIndex = "20";
-    countdownElement.id = "countdown-timer";
-    document.body.appendChild(countdownElement);
-
-    countdownElement.innerHTML = countdown;
-
-    // Play countdown sound
-    countdownSound.play();
-
-    countdownInterval = setInterval(function() {
-        countdown--;
-        if (countdown >= 0) {
-          if(countdown != 0) countdownElement.innerHTML = countdown;
-        } else {
-            clearInterval(countdownInterval);
-            countdownInterval = null;
-            document.body.removeChild(countdownElement);
-            is_counting_down = false;
-
-            // Stop countdown sound
-            countdownSound.pause();
-            countdownSound.currentTime = 0;
-
-            // Play launch sound
-            flightSound.play();
-
-            // Start the rocket launch
-            start_flying(); // Start the rocket launch
-        }
-    }, 1000); // Countdown updates every second
-  }
-
-  </script>
+</script>
 
   <!-- key handlers-->
   <script>
