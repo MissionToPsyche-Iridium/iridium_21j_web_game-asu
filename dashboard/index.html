@@ -52,7 +52,7 @@
   <!-- end pre game overlay and stuff-->
 
 
-
+  
     <script>
       const nipi = 2 * Math.PI;
       function drawCircle(graphics,x,y,radius){
@@ -66,7 +66,7 @@
 
     <!-- canvas will always be the default width for hd-->
     <center>
-    <canvas id="naka" width="1920" style="padding:0px 0px;margin:0px 0px;" height="1080"></canvas>
+    <canvas id="cockpit" width="1920" style="padding:0px 0px;margin:0px 0px;" height="1080"></canvas>
     </center>
 
     <audio id="clickSound" src="click.mp3" preload="auto"></audio>
@@ -88,6 +88,95 @@
 
       let soundPlayed = false;
 
+      let isPaused = false;
+      let animationFrameId;
+
+      // Listen for the Escape key to pause/unpause the game
+      document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape") {
+              if (!isPaused) { // if not paused yet
+                  pauseGame();
+              } else { // if already paused
+                  resumeGame();
+              }
+          }
+      });
+
+      // Function to pause the game
+      function pauseGame(){
+        isPaused = true;
+        drawPauseMenu();
+      }
+
+      // Function to resume the game
+      function resumeGame(){
+        isPaused = false;
+
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+
+        gameLoop();
+      }
+
+      // Function to reset the game
+      function restartGame(){
+        isPaused = false;
+        resetGame();
+
+        // Stop the previous game loop before starting a new one
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+
+        gameLoop();
+      }
+
+      // Function to go back to the main menu
+      function backToMainMenu(){
+        window.location.href = "../index.html";
+      }
+
+      // Function to draw the pause menu
+      function drawPauseMenu(){
+        picture.fillStyle = "rgba(0, 0, 0, 0.9)"
+        picture.fillRect(0, 0, draw.width, draw.height);
+
+        picture.fillStyle = "#FFFFFF";
+        picture.font = "50px Arial";
+        picture.textAlign = "center";
+        picture.fillText("Game Paused", 960, 380);
+     
+        // Buttons
+        drawPauseButton("Resume Game", 960, 460, resumeGame);
+        drawPauseButton("Restart Game", 960, 530, restartGame);
+        drawPauseButton("Main Menu", 960, 600, backToMainMenu);
+      }
+
+      // Function to draw a pause menu button
+      function drawPauseButton(text, x, y, action) {
+          picture.fillStyle = "#444"; // Dark background for the button
+          picture.fillRect(x - 150, y - 40, 300, 60);
+
+          picture.fillStyle = "#FFF"; // White text
+          picture.font = "30px Arial";
+          picture.fillText(text, x, y);
+
+          // Event listener for clicking buttons
+          draw.addEventListener("mousedown", function (event) {
+              let mouseX = event.clientX;
+              let mouseY = event.clientY;
+
+              // Check if the user clicked within the button boundaries
+              if (
+                  mouseX >= x - 150 && mouseX <= x + 150 &&
+                  mouseY >= y - 30 && mouseY <= y + 30
+              ) {
+                  action(); // Execute the corresponding action
+              }
+          });
+      }
+
       // button info
       //the first button has priority if the mouse hovers over both
       //when selecting the buttons make sure to get the top x,y, the whole mouse circle is within the button and/or flush with the top left corner of it
@@ -98,11 +187,11 @@
       let buttons_x2=[974, 999, 964, 1198, 1232, 1584, 399, 433, 469, 750, 659, 983];
       let buttons_y2=[264, 606, 606, 636, 635, 275, 649, 649, 649, 753, 756 ,48];
       let buttons_taisetsu_index=[];
-      let button_chigau=[];
+      let button_invalid=[];
 
       //button handlers
-      function mouse_button_ga_koete(mousex,mousey,mouse_rad,index){
-        if(button_chigau.includes(index)){
+      function isMouseOverButton(mousex,mousey,mouse_rad,index){
+        if(button_invalid.includes(index)){
           return false;//exit if button is invalid
         }
 
@@ -128,9 +217,9 @@
         return false;
       }
 
-      function nani_button_ga_koete(mousex,mousey,mouse_rad){
+      function getHoveredButtonIndex(mousex,mousey,mouse_rad){
         for(var i=0;i < buttons_x.length;i++){
-          if(mouse_button_ga_koete(mousex,mousey,mouse_rad,i)){
+          if(isMouseOverButton(mousex,mousey,mouse_rad,i)){
             return i;
           }
         }
@@ -145,12 +234,12 @@
         let bx2 = buttons_x2[index];
         let by2 = buttons_y2[index];
 
-        gazou.lineWidth=5;
-        gazou.strokeStyle = "rgba(255, 255, 102, 0.9)";  // yellow highlight (now all buttons light up at same time)
-        gazou.shadowBlur = 20;  // Add a glowing effect
-        gazou.shadowColor = "rgba(255, 255, 224, 0.5)"; //default
-        gazou.strokeRect(bx-m_radius, by-m_radius, bx2 - bx + m_radius, by2 - by + m_radius);
-        gazou.shadowBlur = 0;  // Reset shadow
+        picture.lineWidth=5;
+        picture.strokeStyle = "rgba(255, 255, 102, 0.9)";  // yellow highlight (now all buttons light up at same time)
+        picture.shadowBlur = 20;  // Add a glowing effect
+        picture.shadowColor = "rgba(255, 255, 224, 0.5)"; //default
+        picture.strokeRect(bx-m_radius, by-m_radius, bx2 - bx + m_radius, by2 - by + m_radius);
+        picture.shadowBlur = 0;  // Reset shadow
       }
 
       // Highlight the button with a green circle at the given index
@@ -168,15 +257,15 @@
         let nx=x + w/2;
         let ny=y + h/2;
 
-        gazou.lineWidth=5;
-        gazou.strokeStyle = "rgba(30, 255, 30, 0.9)";  // yellow highlight (now all buttons light up at same time)
-        gazou.shadowBlur = 20;  // Add a glowing effect
-        gazou.shadowColor = "rgba(255, 255, 224, 0.5)"; //default
-        gazou.beginPath();
-        gazou.arc(nx,ny,m_radius,0,nipi);
+        picture.lineWidth=5;
+        picture.strokeStyle = "rgba(30, 255, 30, 0.9)";  // yellow highlight (now all buttons light up at same time)
+        picture.shadowBlur = 20;  // Add a glowing effect
+        picture.shadowColor = "rgba(255, 255, 224, 0.5)"; //default
+        picture.beginPath();
+        picture.arc(nx,ny,m_radius,0,nipi);
 
-        gazou.stroke();
-        gazou.shadowBlur = 0;  // Reset shadow
+        picture.stroke();
+        picture.shadowBlur = 0;  // Reset shadow
       }
 
 
@@ -202,11 +291,11 @@
       let before_draw_ticks=0;
       let space_click=false;
 
-      let naka = new Image();
-      naka.src = "cockpit.png";
+      let cockpit = new Image();
+      cockpit.src = "cockpit.png";
 
-      const draw = document.getElementById("naka");
-      const gazou = draw.getContext("2d"); 
+      const draw = document.getElementById("cockpit");
+      const picture = draw.getContext("2d"); 
       const body = document.getElementById("body");
 
       // Check if the mouse is inside the circle (added) no need for this
@@ -218,9 +307,9 @@
       draw.addEventListener("mousedown",function (hairu){
         let x = hairu.pageX;
         let y = hairu.pageY;
-        let koete=nani_button_ga_koete(x,y,m_radius);
-        if(koete!=-1){
-          clicked_index=koete;
+        let hoveredButtonIndex=getHoveredButtonIndex(x,y,m_radius);
+        if(hoveredButtonIndex!=-1){
+          clicked_index=hoveredButtonIndex;
           // added the click sound on buttons
           var clickSound = document.getElementById("clickSound");
           clickSound.currentTime = 0;
@@ -229,14 +318,14 @@
 
         // Start the game when the engine button is clicked
         // Allow user to input only during their turn
-        let clickedButtonIndex = nani_button_ga_koete(x, y, m_radius);
+        let clickedButtonIndex = getHoveredButtonIndex(x, y, m_radius);
         if(clickedButtonIndex == 0 && !engine_started){
           startGame();
           engine_started=true;
           start_message=true;
           actually_drawing=false;
           render_animation=true;
-          button_chigau.push(0);
+          button_invalid.push(0);
           user_sequence = [];
         }else if (clickedButtonIndex !== -1 && !render_animation && user_sequence.length < random_sequence.length) {
             console.log(`User clicked button: ${clickedButtonIndex}`);
@@ -291,35 +380,35 @@
       }
   
       function draw_text(text,x){
-          gazou.fillStyle = "rgba(0, 0, 0, 0.6)";
-          gazou.fillRect(600, 350, 720, 100);
+          picture.fillStyle = "rgba(0, 0, 0, 0.6)";
+          picture.fillRect(600, 350, 720, 100);
 
-          gazou.fillStyle = "#FFFFFF";
-          gazou.font = "50px Arial";
-          gazou.textAlign = "center";
-          gazou.fillText(text, 960, x);
+          picture.fillStyle = "#FFFFFF";
+          picture.font = "50px Arial";
+          picture.textAlign = "center";
+          picture.fillText(text, 960, x);
 
       }
       
       function drawRedButtonOverlay() {
         // Draw a circular overlay for the red button
-        gazou.beginPath();
-        gazou.arc(red_button_x, red_button_y, red_button_radius, 0, nipi);
-        gazou.fillStyle = "rgba(255, 0, 0, 0.5)";  // Red transparent overlay
-        gazou.fill();
+        picture.beginPath();
+        picture.arc(red_button_x, red_button_y, red_button_radius, 0, nipi);
+        picture.fillStyle = "rgba(255, 0, 0, 0.5)";  // Red transparent overlay
+        picture.fill();
       }
 
        // Draw an animated arrow pointing to the red button (added)
       function drawArrow() {
-        gazou.beginPath();
-        gazou.moveTo(red_button_x - 50, red_button_y - 50 + arrow_offset);  // Arrow tail
-        gazou.lineTo(red_button_x, red_button_y - 20 + arrow_offset);  // Arrow tip
-        gazou.lineTo(red_button_x + 50, red_button_y - 50 + arrow_offset);  // Other tail
-        gazou.lineTo(red_button_x - 50, red_button_y - 50 + arrow_offset);  // Close the arrow shape
+        picture.beginPath();
+        picture.moveTo(red_button_x - 50, red_button_y - 50 + arrow_offset);  // Arrow tail
+        picture.lineTo(red_button_x, red_button_y - 20 + arrow_offset);  // Arrow tip
+        picture.lineTo(red_button_x + 50, red_button_y - 50 + arrow_offset);  // Other tail
+        picture.lineTo(red_button_x - 50, red_button_y - 50 + arrow_offset);  // Close the arrow shape
 
-        gazou.fillStyle = "rgba(255, 0, 0, 0.8)";  // Red arrow color
-        gazou.fill();
-        gazou.closePath();
+        picture.fillStyle = "rgba(255, 0, 0, 0.8)";  // Red arrow color
+        picture.fill();
+        picture.closePath();
 
         // Animate the arrow with a bouncing effect
         arrow_offset = (arrow_offset + 0.6) ;  // Bounce between 0 and 20 pixels
@@ -328,7 +417,6 @@
         }
       }
 
-    
       // Reset the game state
       function resetGame() {
         engine_started = false;
@@ -339,11 +427,11 @@
         sequence_playing = false;
         user_turn = false;
         final_message = 0;
-        gazou.drawImage(naka, 0, 0, 1920, 1080);
+        picture.drawImage(cockpit, 0, 0, 1920, 1080);
         render_animation=false;
         actually_drawing=false;
         //added
-        button_chigau = button_chigau.filter(index => index !== 0); //Remove red button from restricted list
+        button_invalid = button_invalid.filter(index => index !== 0); //Remove red button from restricted list
       }
 
       // Start the game by generating a sequence and showing the buttons
@@ -360,8 +448,8 @@
       function generateRandomSequence() {
         random_sequence = [];
 
-        let hajime=1;
-        let kiri=buttons_x.length - hajime;
+        let start=1;
+        let kiri=buttons_x.length - start;
 
         let previous=-1;
         let randomIndex;
@@ -372,10 +460,10 @@
           max_length=buttons_x.length;
         }
         for (let i = 1; i < max_length; i++) {
-          randomIndex = hajime + Math.floor(Math.random() * kiri);
+          randomIndex = start + Math.floor(Math.random() * kiri);
 
           while(randomIndex == previous){
-            randomIndex = hajime + Math.floor(Math.random() * kiri);
+            randomIndex = start + Math.floor(Math.random() * kiri);
           }
 
           random_sequence.push(randomIndex);
@@ -398,10 +486,13 @@
       }
 
       let actually_drawing=false;
-      let animation_itterator=0;
+      let animation_iterator=0;
       
-      function kurikaesu(){
-        gazou.drawImage(naka,0,0,1920,1080);
+      function gameLoop(){
+
+        if (isPaused) return; // if the game is paused, don't run the game loop
+
+        picture.drawImage(cockpit,0,0,1920,1080);
         
         // Draw all buttons
 
@@ -424,18 +515,18 @@
         }
 
         // Show the button sequence if the game has started and it’s not already showing
-               //debug coordinates
-        gazou.fillStyle="#FFF"
-        gazou.font = "15px Arial";
-        gazou.fillText(mouse_x + "," + mouse_y,30,30);
+        //debug coordinates
+        picture.fillStyle="#FFF"
+        picture.font = "15px Arial";
+        picture.fillText(mouse_x + "," + mouse_y,30,30);
 
         //do not render hover when animation frame is running
         let Mouse_style= "rgba(255,255,102,0.5)";
         if(!render_animation){
-          let koete=nani_button_ga_koete(mouse_x,mouse_y,m_radius);
+          let hoveredButtonIndex=getHoveredButtonIndex(mouse_x,mouse_y,m_radius);
 
           //render the mouse to hover over
-            if(koete!=-1){
+            if(hoveredButtonIndex!=-1){
               document.documentElement.style.cursor = "pointer";
               Mouse_style = "rgba(102,102,255,0.5)";
             }else{ 
@@ -454,23 +545,23 @@
             if(is_tick()){
               if(before_draw_ticks>1){
                 actually_drawing=true;
-                animation_itterator=0;
+                animation_iterator=0;
                 start_message=false;
                 space_click=false;
               }
               before_draw_ticks++;
             }
           }else{
-            highlightButton_midori(random_sequence[animation_itterator]);
+            highlightButton_midori(random_sequence[animation_iterator]);
             draw_text("Press any key to continue",400);
             if(space_click){
               
-                animation_itterator++;
+                animation_iterator++;
                 space_click=false;
-              if(animation_itterator >= random_sequence.length){
+              if(animation_iterator >= random_sequence.length){
                 render_animation=false;
                 actually_drawing=false;
-                animation_itterator=0;
+                animation_iterator=0;
                 before_draw_ticks=0;
               }
             }
@@ -497,14 +588,14 @@
             window.location.href = "../launch sequence/index.html";
           }, 3000);
         }
-      
-        gazou.strokeStyle = Mouse_style;
-        drawCircle(gazou,mouse_x,mouse_y,m_radius);
+        
+        picture.strokeStyle = Mouse_style;
+        drawCircle(picture,mouse_x,mouse_y,m_radius);
 
-        requestAnimationFrame(kurikaesu);
+        animationFrameId = requestAnimationFrame(gameLoop);
       }
 
-      kurikaesu();
+      gameLoop();
 
     </script>
   </body>
