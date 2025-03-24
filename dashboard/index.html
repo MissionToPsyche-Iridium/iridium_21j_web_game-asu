@@ -35,6 +35,18 @@
         </center>
         </div>
     </div>
+    
+  <div id="on_pause">
+        <div style="" class="fancy_border_popup">
+        <center>
+          <h3>Menu</h3>
+          <button onclick="resumeGame()"  class="fancy_button dekai">Resume Game</button><br>
+          <button onclick="restartGame()"  class="fancy_button dekai">Restart Game</button><br>
+          <button onclick="backToMainMenu()"  class="fancy_button dekai">Main Menu</button><br>
+        </center>
+        </div>
+  </div>
+
     <script>
       //overlay script
       const show_style="display:flex;justify-content: center;align-items: center;z-index:10;position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(128,128,128,0.5);"
@@ -48,9 +60,19 @@
         overlay.style=hide_style;
       }
       show_overlay();
+
+      const pause_lay=document.getElementById("on_pause");
+
+      function show_pause(){
+        pause_lay.style=show_style;
+      }
+      function hide_pause(){
+        pause_lay.style=hide_style;
+      }
+      hide_pause();
+
     </script>
   <!-- end pre game overlay and stuff-->
-
 
   
     <script>
@@ -105,31 +127,21 @@
       // Function to pause the game
       function pauseGame(){
         isPaused = true;
-        drawPauseMenu();
+        show_pause();
       }
 
       // Function to resume the game
       function resumeGame(){
         isPaused = false;
+        hide_pause();
 
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-        }
-
-        gameLoop();
       }
 
       // Function to reset the game
       function restartGame(){
         isPaused = false;
         resetGame();
-
-        // Stop the previous game loop before starting a new one
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-        }
-
-        gameLoop();
+        hide_pause();
       }
 
       // Function to go back to the main menu
@@ -243,7 +255,7 @@
       }
 
       // Highlight the button with a green circle at the given index
-      function highlightButton_midori(index) {
+      function highlightButton_green(index) {
        
         let bx = buttons_x[index];
         let by = buttons_y[index];
@@ -490,7 +502,7 @@
       
       function gameLoop(){
 
-        if (isPaused) return; // if the game is paused, don't run the game loop
+        if (!isPaused){ // if the game is paused, don't run the game loop
 
         picture.drawImage(cockpit,0,0,1920,1080);
         
@@ -552,7 +564,7 @@
               before_draw_ticks++;
             }
           }else{
-            highlightButton_midori(random_sequence[animation_iterator]);
+            highlightButton_green(random_sequence[animation_iterator]);
             draw_text("Press any key to continue",400);
             if(space_click){
               
@@ -591,7 +603,7 @@
         
         picture.strokeStyle = Mouse_style;
         drawCircle(picture,mouse_x,mouse_y,m_radius);
-
+        }
         animationFrameId = requestAnimationFrame(gameLoop);
       }
 
