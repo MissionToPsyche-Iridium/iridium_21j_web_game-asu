@@ -44,12 +44,9 @@
 
 <div style="display:none;" id="hidden_content"><center>
     <h1>Take OFF!</h1>
-    <h1>choose your next destination!</h1>
-    <a class="button" href="../memorization/index.html">Restart Game</a>
     <br>
+    <h1>Move to Your Next Destination!</h1>
     <a class="button game-button" href="../meteoroid_navigation/index.html">☄️ Meteoroid Navigation</a>
-    <br>
-    <a class="button" href="../index.html">Main Menu</a>
     </center>
   </div>
 
@@ -169,7 +166,6 @@
         isPaused=true;
       window.location.href = "../index.html";
   }
-
 
   //this is the auto load function load the background set the canvas size etc
 
@@ -294,8 +290,6 @@
     var yp=down_correction+window_h/2-jets_height/2 - y;
 
     draw_jets(graphics,xp,yp,scale);
-
-    //graphics.drawImage(jets,xp,yp,rocket_width,jets_height);
  
   }
 
@@ -308,7 +302,6 @@
   function start_flying(){
 
     fly_counter=20;
-    //speed=1;
     is_flying=1;
   }
 
@@ -452,7 +445,11 @@
 
     document.addEventListener('keyup', onkey);
     function onkey(e){
-      if(e.key == ' ' && get_base()==1 && !is_counting_down && !isPaused){
+
+      // Check if the overlay is visible to avoid user input during game instruction
+      const isOverlayVisible = overlay.style.display !== "none";
+
+      if(e.key == ' ' && get_base()==1 && !is_counting_down && !isPaused && !isOverlayVisible){
         startCountdown();
         if(document.getElementById("welcome") != null)
           document.getElementById("welcome").remove();
