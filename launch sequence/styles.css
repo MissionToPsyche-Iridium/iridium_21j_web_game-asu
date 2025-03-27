@@ -16,7 +16,7 @@
   margin:5px 5px;
   transition: background 1s, border 1s, color, 1s;
 }
-.dekai{
+.wide-button{
   width:90%;
 }
 .fancy_button:hover{
