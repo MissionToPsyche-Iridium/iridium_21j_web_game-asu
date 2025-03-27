@@ -1,15 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Psyche Asteroid Game</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psyche Educational Page</title>
+
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background-color: black;
+            background: black;
             font-family: Arial, sans-serif;
             color: white;
             text-align: center;
+        }
+
+        .fancy_border_popup {
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 3px solid white;
+            border-radius: 15px;
+            padding: 40px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .fancy_button {
+            background-color: #444;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+      
+        .fancy_button:hover {
+            background-color: #666;
         }
 
         #game-container {
@@ -82,18 +109,38 @@
             border: none;
             border-radius: 5px;
         }
-
     </style>
 </head>
 <body>
 
+<div id="instructionsOverlay" style="
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); color: white; display: flex;
+    flex-direction: column; justify-content: center; align-items: center; z-index: 2000;">
+    <div class="fancy_border_popup">
+        <center><h3>How to Play</h3></center>
+        <ul style="text-align: left;">
+            <li>Discover new areas on the Psyche Asteroid.</li>
+            <li>Hover your mouse over certain areas to reveal a hotspot!</li>
+            <li>Click on the hotspots to learn more about Psyche!</li>
+            <li>Press Esc to pause the game</li>
+        </ul>
+        <center>
+            <button id="startGameBtn" class="fancy_button">Start Game</button>
+        </center>
+    </div>
+</div>
+
+<!-- Main hotspot content -->
 <div id="game-container">
     <div id="asteroid">
-        <div class="hotspot" style="top: 30%; left: 40%;" onclick="showInfo(this, 'Crater A', 'This crater is believed to be one of the oldest impact sites on Psyche.')"></div>
-        <div class="hotspot" style="top: 60%; left: 70%;" onclick="showInfo(this, 'Metal Deposit', 'This region has a high concentration of nickel and iron, indicating Psyche’s metallic nature.')"></div>
-        <div class="hotspot" style="top: 50%; left: 20%;" onclick="showInfo(this, 'Magnetic Anomaly', 'Scientists detected unusual magnetic readings in this area, suggesting remnants of a planetary core.')"></div>
+        <div class="hotspot" style="top: 30%; left: 40%;" 
+             onclick="showInfo(this, 'Crater A', 'This crater is believed to be one of the oldest impact sites on Psyche.')"></div>
+        <div class="hotspot" style="top: 60%; left: 70%;" 
+             onclick="showInfo(this, 'Metal Deposit', 'This region has a high concentration of nickel and iron, indicating Psyche’s metallic nature.')"></div>
+        <div class="hotspot" style="top: 50%; left: 20%;" 
+             onclick="showInfo(this, 'Magnetic Anomaly', 'Scientists detected unusual magnetic readings in this area, suggesting remnants of a planetary core.')"></div>
     </div>
-
     <div id="satellite"></div>
 </div>
 
@@ -104,9 +151,12 @@
 </div>
 
 <script>
+    let paused = false;
     let selectedHotspot = null;
 
     function showInfo(element, title, text) {
+        if (paused) return;
+
         if (selectedHotspot) {
             selectedHotspot.classList.remove('selected');
         }
@@ -127,6 +177,78 @@
             selectedHotspot = null;
         }
     }
+
+    const menuOverlay = document.createElement('div');
+    menuOverlay.classList.add('fancy_border_popup');
+    menuOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    menuOverlay.style.color = 'white';
+    menuOverlay.style.position = 'fixed';
+    menuOverlay.style.top = '50%';
+    menuOverlay.style.left = '50%';
+    menuOverlay.style.transform = 'translate(-50%, -50%)';
+    menuOverlay.style.zIndex = '1000';
+    menuOverlay.style.display = 'none';
+    menuOverlay.style.flexDirection = 'column';
+    menuOverlay.style.justifyContent = 'center';
+    menuOverlay.style.alignItems = 'center';
+    document.body.appendChild(menuOverlay);
+
+    const resumeButton = document.createElement('button');
+    resumeButton.textContent = 'Resume Game';
+    resumeButton.style.margin = '10px';
+    resumeButton.style.padding = '10px 20px';
+    resumeButton.style.fontSize = '18px';
+
+    const restartButton = document.createElement('button');
+    restartButton.textContent = 'Restart Game';
+    restartButton.style.margin = '10px';
+    restartButton.style.padding = '10px 20px';
+    restartButton.style.fontSize = '18px';
+
+    const mainMenuButton = document.createElement('button');
+    mainMenuButton.textContent = 'Main Menu';
+    mainMenuButton.style.margin = '10px';
+    mainMenuButton.style.padding = '10px 20px';
+    mainMenuButton.style.fontSize = '18px';
+
+    menuOverlay.appendChild(resumeButton);
+    menuOverlay.appendChild(restartButton);
+    menuOverlay.appendChild(mainMenuButton);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            togglePause();
+        }
+    });
+
+    function togglePause() {
+        paused = !paused;
+        menuOverlay.style.display = paused ? 'flex' : 'none';
+
+        const satellite = document.getElementById('satellite');
+
+        if (paused) {
+            satellite.style.animationPlayState = 'paused';
+        } else {
+            satellite.style.animationPlayState = 'running';
+        }
+    }
+
+    resumeButton.addEventListener('click', () => {
+        togglePause();
+    });
+
+    restartButton.addEventListener('click', () => {
+        location.reload();
+    });
+
+    mainMenuButton.addEventListener('click', () => {
+        location.href = '../index.html';
+    });
+
+    document.getElementById('startGameBtn').addEventListener('click', () => {
+        document.getElementById('instructionsOverlay').style.display = 'none';
+    });
 </script>
 
 </body>
