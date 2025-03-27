@@ -40,9 +40,9 @@
         <div style="" class="fancy_border_popup">
         <center>
           <h3>Menu</h3>
-          <button onclick="resumeGame()"  class="fancy_button dekai">Resume Game</button><br>
-          <button onclick="restartGame()"  class="fancy_button dekai">Restart Game</button><br>
-          <button onclick="backToMainMenu()"  class="fancy_button dekai">Main Menu</button><br>
+          <button onclick="resumeGame()"  class="fancy_button wide-button">Resume Game</button><br>
+          <button onclick="restartGame()"  class="fancy_button wide-button">Restart Game</button><br>
+          <button onclick="backToMainMenu()"  class="fancy_button wide-button">Main Menu</button><br>
         </center>
         </div>
   </div>
@@ -103,7 +103,7 @@
       const m_height=25;
       const m_radius=Math.floor(m_width,m_height)/2;
 
-      // Red button's position and size (added)
+      // Red button's position and size
       let red_button_x = 957;
       let red_button_y = 250;
       let red_button_radius = 15.8;
@@ -157,7 +157,6 @@
       let buttons_y=[249, 583, 583, 619, 618, 258, 645, 641, 641, 743, 743, 15];
       let buttons_x2=[974, 999, 964, 1198, 1232, 1584, 399, 433, 469, 750, 659, 983];
       let buttons_y2=[264, 606, 606, 636, 635, 275, 649, 649, 649, 753, 756 ,48];
-      let buttons_taisetsu_index=[];
       let button_invalid=[];
 
       //button handlers
@@ -245,7 +244,7 @@
 
       let clicked_index=-1;
 
-      // Game state variables (added)
+      // Game state variables
       let engine_started = false;
       let start_message = false; 
       let arrow_offset = 0; 
@@ -269,9 +268,9 @@
       const picture = draw.getContext("2d"); 
       const body = document.getElementById("body");
  
-      draw.addEventListener("mousedown",function (hairu){
-        let x = hairu.pageX;
-        let y = hairu.pageY;
+      draw.addEventListener("mousedown",function (input){
+        let x = input.pageX;
+        let y = input.pageY;
         let hoveredButtonIndex=getHoveredButtonIndex(x,y,m_radius);
         if(hoveredButtonIndex!=-1){
           clicked_index=hoveredButtonIndex;
@@ -299,12 +298,12 @@
 
       });
 
-      body.addEventListener("keyup", function(hairu){
+      body.addEventListener("keyup", function(input){
         space_click=true;
       });
-      draw.addEventListener("mousemove",function (hairu){
-        mouse_x = hairu.pageX;
-        mouse_y = hairu.pageY;
+      draw.addEventListener("mousemove",function (input){
+        mouse_x = input.pageX;
+        mouse_y = input.pageY;
       });
 
       function checkUserSequence(index){
@@ -363,7 +362,7 @@
         picture.fill();
       }
 
-       // Draw an animated arrow pointing to the red button (added)
+       // Draw an animated arrow pointing to the red button
       function drawArrow() {
         picture.beginPath();
         picture.moveTo(red_button_x - 50, red_button_y - 50 + arrow_offset);  // Arrow tail
@@ -395,7 +394,7 @@
         picture.drawImage(cockpit, 0, 0, 1920, 1080);
         render_animation=false;
         actually_drawing=false;
-        //added
+      
         button_invalid = button_invalid.filter(index => index !== 0); //Remove red button from restricted list
       }
 
@@ -461,20 +460,18 @@
           
            // Draw all buttons
 
-          // before engine start (added)
+          // before engine start
           if (!engine_started) {
             drawArrow();
             draw_text("Click Engine Button Here to Start", 400);
           }
 
-          //added
           if (start_message) {
             draw_text("Engine started! Get ready to play.", 400);  // Centered text
 
             // Set a timer to hide the message after 2 seconds (2000 milliseconds)
           }
 
-          // added
           if (engine_started) {
             drawRedButtonOverlay();
           }
