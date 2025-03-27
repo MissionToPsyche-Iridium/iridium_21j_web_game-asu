@@ -18,6 +18,32 @@
             background-size: cover;
         }
     </style>
+    <style>
+        .fancy_border_popup {
+          background-color: rgba(0, 0, 0, 0.9);
+          border: 3px solid white;
+          border-radius: 15px;
+          padding: 40px;
+          width: 400px;
+          text-align: center;
+        }
+      
+        .fancy_button {
+          background-color: #444;
+          color: white;
+          padding: 12px 24px;
+          border: none;
+          border-radius: 10px;
+          font-size: 18px;
+          cursor: pointer;
+          margin-top: 10px;
+        }
+      
+        .fancy_button:hover {
+          background-color: #666;
+        }
+      </style>
+      
 </head>
 <body>
 <canvas id="gameCanvas"></canvas>
@@ -26,10 +52,20 @@
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.8); color: white; display: flex;
     flex-direction: column; justify-content: center; align-items: center; z-index: 2000;">
-    <h1>How to Play</h1>
-    <p>Use arrow keys to move in any direction. Avoid the meteors. Every 5 levels, you regain a life.</p>
-    <button id="startGameBtn" style="padding: 10px 20px; font-size: 18px;">Start Game</button>
+    <div class="fancy_border_popup">
+        <center><h3>How to Play</h3></center>
+        <ul style="text-align: left;">
+            <li>Use arrow keys to move in any direction</li>
+            <li>Avoid the meteors</li>
+            <li>Every 5 levels, you regain a life</li>
+            <li>Press Esc to pause the game</li>
+        </ul>
+        <center>
+            <button id="startGameBtn" class="fancy_button">Start Game</button>
+        </center>
+    </div>
 </div>
+
 
 <script>
     const canvas = document.getElementById("gameCanvas");
@@ -207,19 +243,19 @@
 
     //Menu Overlay
     const menuOverlay = document.createElement('div');
-    menuOverlay.style.position = 'fixed';
-    menuOverlay.style.top = '0';
-    menuOverlay.style.left = '0';
-    menuOverlay.style.width = '100%';
-    menuOverlay.style.height = '100%';
+    menuOverlay.classList.add("fancy_border_popup");
     menuOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
     menuOverlay.style.color = 'white';
-    menuOverlay.style.display = 'flex';
+    menuOverlay.style.position = 'fixed';
+    menuOverlay.style.top = '50%';
+    menuOverlay.style.left = '50%';
+    menuOverlay.style.transform = 'translate(-50%, -50%)';
+    menuOverlay.style.zIndex = '1000';
+    menuOverlay.style.display = 'none';
     menuOverlay.style.flexDirection = 'column';
     menuOverlay.style.justifyContent = 'center';
     menuOverlay.style.alignItems = 'center';
-    menuOverlay.style.zIndex = '1000';
-    menuOverlay.style.display = 'none';
+
     document.body.appendChild(menuOverlay);
 
     const resumeButton = document.createElement('button');
