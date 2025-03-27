@@ -18,9 +18,54 @@
             background-size: cover;
         }
     </style>
+    <style>
+        .fancy_border_popup {
+          background-color: rgba(0, 0, 0, 0.9);
+          border: 3px solid white;
+          border-radius: 15px;
+          padding: 40px;
+          width: 400px;
+          text-align: center;
+        }
+      
+        .fancy_button {
+          background-color: #444;
+          color: white;
+          padding: 12px 24px;
+          border: none;
+          border-radius: 10px;
+          font-size: 18px;
+          cursor: pointer;
+          margin-top: 10px;
+        }
+      
+        .fancy_button:hover {
+          background-color: #666;
+        }
+      </style>
+      
 </head>
 <body>
 <canvas id="gameCanvas"></canvas>
+
+<div id="instructionsOverlay" style="
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); color: white; display: flex;
+    flex-direction: column; justify-content: center; align-items: center; z-index: 2000;">
+    <div class="fancy_border_popup">
+        <center><h3>How to Play</h3></center>
+        <ul style="text-align: left;">
+            <li>Use arrow keys to move in any direction</li>
+            <li>Avoid the meteors</li>
+            <li>Every 5 levels, you regain a life</li>
+            <li>Press Esc to pause the game</li>
+        </ul>
+        <center>
+            <button id="startGameBtn" class="fancy_button">Start Game</button>
+        </center>
+    </div>
+</div>
+
 
 <script>
     const canvas = document.getElementById("gameCanvas");
@@ -57,6 +102,7 @@
     let avoidlim=5;
     let lives = 3;
     let gameOver = false;
+    let level5Reached = false;
 
     document.addEventListener('keydown', keyDownHandler);
     document.addEventListener('keyup', keyUpHandler);
@@ -158,6 +204,13 @@
                 }
             });
         });
+
+        // Level 5 Pause Check
+        if (score === 5 && !level5Reached) {
+            level5Reached = true;
+            paused = true;
+            level5Overlay.style.display = 'flex';
+        }
     }
 
     function drawSpaceship() {
@@ -188,20 +241,21 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
+    //Menu Overlay
     const menuOverlay = document.createElement('div');
-    menuOverlay.style.position = 'fixed';
-    menuOverlay.style.top = '0';
-    menuOverlay.style.left = '0';
-    menuOverlay.style.width = '100%';
-    menuOverlay.style.height = '100%';
+    menuOverlay.classList.add("fancy_border_popup");
     menuOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
     menuOverlay.style.color = 'white';
-    menuOverlay.style.display = 'flex';
+    menuOverlay.style.position = 'fixed';
+    menuOverlay.style.top = '50%';
+    menuOverlay.style.left = '50%';
+    menuOverlay.style.transform = 'translate(-50%, -50%)';
+    menuOverlay.style.zIndex = '1000';
+    menuOverlay.style.display = 'none';
     menuOverlay.style.flexDirection = 'column';
     menuOverlay.style.justifyContent = 'center';
     menuOverlay.style.alignItems = 'center';
-    menuOverlay.style.zIndex = '1000';
-    menuOverlay.style.display = 'none';
+
     document.body.appendChild(menuOverlay);
 
     const resumeButton = document.createElement('button');
@@ -225,6 +279,76 @@
     menuOverlay.appendChild(resumeButton);
     menuOverlay.appendChild(restartButton);
     menuOverlay.appendChild(mainMenuButton);
+
+    // Level 5 Overlay
+    const level5Overlay = document.createElement('div');
+    level5Overlay.style.position = 'fixed';
+    level5Overlay.style.top = '0';
+    level5Overlay.style.left = '0';
+    level5Overlay.style.width = '100%';
+    level5Overlay.style.height = '100%';
+    level5Overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+    level5Overlay.style.color = 'white';
+    level5Overlay.style.display = 'flex';
+    level5Overlay.style.flexDirection = 'column';
+    level5Overlay.style.justifyContent = 'center';
+    level5Overlay.style.alignItems = 'center';
+    level5Overlay.style.zIndex = '1001';
+    level5Overlay.style.display = 'none';
+
+    const congratsText = document.createElement('h1');
+    congratsText.textContent = '🎉 Congrats! You reached Level 5!';
+
+    const continueBtn = document.createElement('button');
+    continueBtn.textContent = 'Continue Playing';
+    continueBtn.style.margin = '10px';
+    continueBtn.style.padding = '10px 20px';
+    continueBtn.style.fontSize = '18px';
+
+    const nextGameBtn = document.createElement('button');
+    nextGameBtn.textContent = 'Next Game';
+    nextGameBtn.style.margin = '10px';
+    nextGameBtn.style.padding = '10px 20px';
+    nextGameBtn.style.fontSize = '18px';
+
+    level5Overlay.appendChild(congratsText);
+    level5Overlay.appendChild(continueBtn);
+    level5Overlay.appendChild(nextGameBtn);
+    document.body.appendChild(level5Overlay);
+
+    continueBtn.addEventListener('click', () => {
+        level5Overlay.style.display = 'none';
+        paused = false;
+        floatingNextGameBtn.style.display = 'inline-block';
+    });
+
+
+    nextGameBtn.addEventListener('click', () => {
+        location.href = '../psyche_educational_game/psyche_educational_page.html';
+    });
+
+    // Floating Next Game button (top-right corner)
+    const floatingNextGameBtn = document.createElement('button');
+    floatingNextGameBtn.textContent = 'Next Game';
+    floatingNextGameBtn.style.position = 'fixed';
+    floatingNextGameBtn.style.top = '20px';
+    floatingNextGameBtn.style.right = '20px';
+    floatingNextGameBtn.style.padding = '10px 15px';
+    floatingNextGameBtn.style.fontSize = '16px';
+    floatingNextGameBtn.style.backgroundColor = '#444';
+    floatingNextGameBtn.style.color = 'white';
+    floatingNextGameBtn.style.border = 'none';
+    floatingNextGameBtn.style.borderRadius = '5px';
+    floatingNextGameBtn.style.cursor = 'pointer';
+    floatingNextGameBtn.style.zIndex = '1002';
+    floatingNextGameBtn.style.display = 'none';
+
+    floatingNextGameBtn.addEventListener('click', () => {
+        location.href = '../psyche_educational_game/psyche_educational_page.html';
+    });
+
+    document.body.appendChild(floatingNextGameBtn);
+
 
     function togglePause() {
         paused = !paused;
@@ -300,5 +424,8 @@
         requestAnimationFrame(gameLoop);
     }
 
+    document.getElementById('startGameBtn').addEventListener('click', () => {
+    document.getElementById('instructionsOverlay').style.display = 'none';
     gameLoop();
+});
 </script>

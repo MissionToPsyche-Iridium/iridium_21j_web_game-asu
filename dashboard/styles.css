@@ -15,6 +15,11 @@
   cursor:pointer;
   transition: background 1s, border 1s, color, 1s;
 }
+.wide-button{
+  width:90%;
+  margin:5px 5px;
+}
+
 .fancy_button:hover{
 
   background:#edebeb;
