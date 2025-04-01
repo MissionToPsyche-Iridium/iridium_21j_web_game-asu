@@ -66,12 +66,12 @@
 
         #asteroid {
             position: relative;
-            width: 400px;
-            height: 400px;
+            width: 720px;
+            height: 720px;
             background: url('psyche_asteroid.png') no-repeat center/contain;
         }
 
-        .hotspot {
+        /* .hotspot {
             position: absolute;
             width: 30px;
             height: 30px;
@@ -84,19 +84,53 @@
 
         .hotspot:hover, .hotspot.selected {
             border-color: white;
+        } */
+
+
+        .hotspot {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.4); /* Faint white border */
+            background-color: rgba(255, 255, 255, 0.1); /* Slight glow base */
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            animation: pulse 2s infinite ease-in-out;
+            transition: border-color 0.2s ease-in-out;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+        }
+
+        .hotspot:hover,
+        .hotspot.selected {
+            border-color: white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            }
+            100% {
+                box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+            }
         }
 
         #satellite {
             position: absolute;
-            width: 80px;
-            height: 80px;
+            width: 160px;
+            height: 160px;
             background: url('psyche_satellite.png') no-repeat center/contain;
-            animation: orbit 15s linear infinite;
+            animation: orbit 30s linear infinite;
         }
 
         @keyframes orbit {
-            0%   { transform: rotate(0deg) translateX(250px) rotate(0deg); }
-            100% { transform: rotate(360deg) translateX(250px) rotate(-360deg); }
+            0%   { transform: rotate(0deg) translateX(430px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(430px) rotate(-360deg); }
         }
 
         #info-pane {
@@ -121,6 +155,43 @@
             border: none;
             border-radius: 5px;
         }
+
+        #hotspot-counter {
+            position: fixed;
+            top: 50px;
+            right: 100px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 40px;
+            z-index: 5;
+            font-weight: bold;
+            border: 2px solid #81d4fa;
+            box-shadow: 0 0 8px rgba(129, 212, 250, 0.5);
+        }
+
+        #game-complete {
+            position: fixed;
+            top: 120px;
+            right: 100px;
+            background: rgba(0, 128, 0, 0.8);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 18px;
+            z-index: 5;
+            font-weight: bold;
+            display: none;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
 
     </style>
 </head>
@@ -149,16 +220,51 @@
     <button id="close-btn" onclick="closeInfo()">Close</button>
 </div>
 
+<!-- Hotspot Counter -->
+<div id="hotspot-counter">Found: 0 / 3</div>
+
+<!-- Completion Message (Hidden Initially) -->
+<div id="game-complete">All Hotspots Found!</div>
+
+
 <script>
     let selectedHotspot = null;
+    const discoveredHotspots = new Set();
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Star background generation
+        const starsContainer = document.querySelector(".stars-container");
+        for (let i = 0; i < 500; i++) {
+            let star = document.createElement("div");
+            star.classList.add("star");
+            star.style.top = Math.random() * 100 + "vh";
+            star.style.left = Math.random() * 100 + "vw";
+            star.style.animationDuration = (Math.random() * 5 + 3) + "s";
+            starsContainer.appendChild(star);
+        }
+
+        // Initialize the hotspot counter
+        updateHotspotCounter();
+    });
 
     function showInfo(element, title, text) {
+        // Only add to discovered set if this hotspot hasn't been clicked before
+        if (!discoveredHotspots.has(element)) {
+            discoveredHotspots.add(element);
+            updateHotspotCounter();
+
+            if (discoveredHotspots.size === document.querySelectorAll('.hotspot').length) {
+                document.getElementById("game-complete").style.display = "block";
+            }
+        }
+
+        // Deselect previous hotspot visually (but don't remove from discovered)
         if (selectedHotspot) {
-            selectedHotspot.classList.remove('selected');
+            selectedHotspot.classList.remove("selected");
         }
 
         selectedHotspot = element;
-        selectedHotspot.classList.add('selected');
+        selectedHotspot.classList.add("selected");
 
         document.getElementById('info-title').innerText = title;
         document.getElementById('info-text').innerText = text;
@@ -174,21 +280,14 @@
         }
     }
 
-    // Generate Random Stars (Same as Main Menu)
-    document.addEventListener("DOMContentLoaded", function () {
-        const starsContainer = document.querySelector(".stars-container");
-
-        for (let i = 0; i < 500; i++) {  // Adjust number of stars here
-            let star = document.createElement("div");
-            star.classList.add("star");
-            star.style.top = Math.random() * 100 + "vh";
-            star.style.left = Math.random() * 100 + "vw";
-            star.style.animationDuration = (Math.random() * 5 + 3) + "s";  // Twinkle speed varies
-            starsContainer.appendChild(star);
-        }
-    });
-
+    function updateHotspotCounter() {
+        const counter = document.getElementById("hotspot-counter");
+        const total = document.querySelectorAll(".hotspot").length;
+        counter.innerText = `Found: ${discoveredHotspots.size} / ${total}`;
+    }
 </script>
+
 
 </body>
 </html>
+

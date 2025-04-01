@@ -59,43 +59,43 @@
     /* Asteroid - Above Stars but Below UI */
     .asteroid {
         position: absolute;
-        width: 650px;
+        width: 750px;
         height: auto;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         opacity: 0.7;
         animation: asteroid-move 10s infinite linear alternate;
-        z-index: 2; /* Move above stars */
+        z-index: 2;
     }
-
+    
     /* Floating Asteroid */
     @keyframes asteroid-move {
         from { transform: translate(-50%, -50%) scale(1); }
         to { transform: translate(-50%, -52%) scale(1.05); }
     }
 
+
     /* Satellite - Orbits Around the Asteroid */
     .satellite {
         position: absolute;
-        width: 200px;
-        height: auto;
         top: 50%;
         left: 50%;
-        transform-origin: center;
+        width: 220px;
+        height: auto;
+        transform: translate(-50%, -50%) rotate(0deg);
+        transform-origin: center center;
         animation: orbit 30s linear infinite;
-        z-index: 2; /* Same layer as asteroid */
+        z-index: 2;
     }
-
-    /* Orbit Animation */
+    
     @keyframes orbit {
-        0% {
-            transform: rotate(0deg) translateX(400px) rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg) translateX(400px) rotate(-360deg);
-        }
+        0%   { transform: translate(-50%, -50%) rotate(0deg) translateX(500px) rotate(-0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg) translateX(500px) rotate(-360deg); }
     }
+    
+    
+    
 }
 
 /* UI Elements */
@@ -108,7 +108,7 @@
     /* Game Title */
     .game-title {
         font-family: 'Orbitron', sans-serif;
-        font-size: 64px;
+        font-size: 80px;
         font-weight: 700;
         color: #81d4fa;
         text-shadow: 0 0 10px #81d4fa, 0 0 20px #0288d1, 0 0 30px #0277bd;

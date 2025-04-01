@@ -10,18 +10,19 @@
 
   <!-- Animated Space Background -->
   <div class="background-container">
-    <div class="stars-container"></div> <!-- Stars (Furthest back) -->
+    <div class="stars-container"></div>
     <img src="assets/images/psyche_asteroid.png" class="asteroid" alt="Asteroid">
-    <img src="assets/images/psyche_satellite.png" class="satellite" alt="Satellite">
+    <img src="assets/images/psyche_satellite.png" class="satellite" id="satellite" alt="Satellite">
+
   </div>
+  
 
   <!-- Game Title -->
   <div class="game-title">Psyche Exploration</div>
 
   <!-- Main Menu -->
   <div class="menu-container">
-    <h1>Main Menu</h1>
-    <p>Choose your next mission!</p>
+    <h1>Choose your next mission!</h1>
 
     <!-- Game Buttons -->
     <a class="button" href="launch sequence/index.html">🚀 Launch Sequence</a>
@@ -62,9 +63,11 @@
 
       <!-- Disclaimer -->
       <p><strong>📕Disclaimer:</strong></p>
-      <p>This game is a project for the NASA Psyche Mission, developed for educational purposes. It is not an official NASA product.</p>
+      <p>This work was created in partial fulfillment of Arizona State University Capstone Course “CSE 485″. The work is a result of the Psyche Student Collaborations component of NASA’s Psyche Mission (https://psyche.asu.edu). “Psyche: A Journey to a Metal World” [Contract number NNM16AA09C] is part of the NASA Discovery Program mission to solar system targets. Trade names and trademarks of ASU and NASA are used in this work for identification only. Their usage does not constitute an official endorsement, either expressed or implied, by Arizona State University or National Aeronautics and Space Administration. The content is solely the responsibility of the authors and does not necessarily represent the official views of ASU or NASA.</p>
   </div>
 </div>
+
+  
 
   <script>
     // Get elements
@@ -134,7 +137,7 @@
     document.addEventListener("DOMContentLoaded", function () {
         const starsContainer = document.querySelector(".stars-container");
 
-        for (let i = 0; i < 150; i++) {  // Adjust number of stars here
+        for (let i = 0; i < 600; i++) {  // Adjust number of stars here
             let star = document.createElement("div");
             star.classList.add("star");
             star.style.top = Math.random() * 100 + "vh";
