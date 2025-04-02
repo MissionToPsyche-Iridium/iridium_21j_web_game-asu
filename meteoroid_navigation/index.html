@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,8 +16,29 @@
             background-image: url('space-background.png'); /* Change background image here */
             background-size: cover;
         }
+        #hud {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            font-size: 40px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 10px;
+            z-index: 10;
+        }
+        #hud div {
+            margin: 5px 0;
+        }
+
     </style>
 </head>
+<div id="hud">
+    <div id="level">Level: 0</div>
+    <div id="lives">Lives: 3</div>
+</div>
+
 <body>
 <canvas id="gameCanvas"></canvas>
 
@@ -177,12 +197,11 @@
         });
     }
 
-    function drawScore() {
-        ctx.fillStyle = "white";
-        ctx.font = "20px Arial";
-        ctx.fillText("Score: " + score + " high score: " + high_score, 10, 20);
-        ctx.fillText("Lives: " + lives, 10, 50);
+    function updateHUD() {
+        document.getElementById("level").textContent = "Level: " + score;
+        document.getElementById("lives").textContent = "Lives: " + lives;
     }
+
 
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -268,33 +287,33 @@
 
     function gameLoop() {
         if (!paused && !gameOver) {
-        clearCanvas();
-        drawSpaceship();
-        drawAsteroids();
-        drawBullets();
-        drawScore();
-        update();
+            updateHUD();
+            clearCanvas();
+            drawSpaceship();
+            drawAsteroids();
+            drawBullets();
+            update();
 
-        if (score < 0) score = 0;
+            if (score < 0) score = 0;
 
-        difficulty = score / 100.0;
+            difficulty = score / 100.0;
 
-        if (difficulty > 1) {
-            difficulty = 1;
-        }
-        if (difficulty < 0.01) {
-            difficulty = 0.01;
-        }
-        global_speed_factor = difficulty * 30;
-        avoidlim = global_speed_factor * 10;
+            if (difficulty > 1) {
+                difficulty = 1;
+            }
+            if (difficulty < 0.01) {
+                difficulty = 0.01;
+            }
+            global_speed_factor = difficulty * 30;
+            avoidlim = global_speed_factor * 10;
 
-        if (score > high_score) {
-            high_score = score;
-        }
+            if (score > high_score) {
+                high_score = score;
+            }
 
-        if (Math.random() < difficulty) createAsteroid();
+            if (Math.random() < difficulty) createAsteroid();
         } else {
-            drawScore();
+            updateHUD();
         }
 
         requestAnimationFrame(gameLoop);
