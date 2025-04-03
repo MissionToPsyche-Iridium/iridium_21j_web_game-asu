@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="jp ru cn">
+<html lang="en">
 <head>
 <title>Lift Off!</title>
 
@@ -27,36 +27,146 @@
       z-index: 5;
     }
     </style>
+    <link rel="stylesheet" href="./styles.css">
   </head>
 
 <noscript>
 <!-- display unity logo with poop here -->
   </noscript>
 
+  <!--replaced with the popup-->
 <h1 style="color:white;position:fixed;z-index:2;left:50%;margin-left:-110px;top:50%;" id="welcome">
 
-    Press SPACE to start</h1>
+  </h1>
 
 <div style="color:white;position:fixed;z-index:2;left:50%;margin-left:+215px;top:20%;" id="liftoff"></div>
 
 
 <div style="display:none;" id="hidden_content"><center>
     <h1>Take OFF!</h1>
-    <h1>choose your next destination!</h1>
-    <a class="button" href="../meteoroid_navigation/index.html">Meteoroid Navigation</a>
-
     <br>
-    <a class="button" href="../index.html">Main Menu</a>    
-  </center>
+    <h1>Move to Your Next Destination!</h1>
+    <a class="button game-button" href="../meteoroid_navigation/index.html">☄️ Meteoroid Navigation</a>
+    </center>
   </div>
 
 <canvas id="gameCanvas"></canvas>
+
+
+ <div id="overlay">
+        <div style="" class="fancy_border_popup">
+        <center>
+          <h3>How to play</h3>
+        </center>
+          <ul>
+            <li>Press enter to launch!</li>
+            <li>Press Esc to pause the game</li>
+          </ul>
+        <center>
+          <button onclick="hide_overlay()"  class="fancy_button">got it</button>
+        </center>
+        </div>
+    </div>
+
+
+<div id="on_pause">
+        <div style="" class="fancy_border_popup">
+        <center>
+          <h3>Menu</h3>
+          <button onclick="resumeGame()"  class="fancy_button wide-button">Resume Game</button><br>
+          <button onclick="restartGame()"  class="fancy_button wide-button">Restart Game</button><br>
+          <button onclick="backToMainMenu()"  class="fancy_button wide-button">Main Menu</button><br>
+        </center>
+        </div>
+</div>
+
+  <script>
+      //overlay script
+      const show_style="display:flex;justify-content: center;align-items: center;z-index:40;position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(128,128,128,0.5);"
+      const hide_style="display:none;"
+      const overlay=document.getElementById("overlay");
+      const pause_lay=document.getElementById("on_pause");
+
+      function show_pause(){
+        pause_lay.style=show_style;
+      }
+      function hide_pause(){
+        pause_lay.style=hide_style;
+      }
+      function show_overlay(){
+        overlay.style=show_style;
+      }
+      function hide_overlay(){
+        overlay.style=hide_style;
+      }
+      show_overlay();
+      
+   </script>
 
 <script src="gradient.js"></script>
 <script src="rocket_animation.js"></script>
 <script src="stars.js"></script>
 <script src="bird.js"></script>
 <script>
+
+  let isPaused = false;
+  let animationFrameId;
+
+  var countdown = 10; // Global countdown variable
+  var countdownInterval = null; // Reference to the countdown interval
+  var countdownElement = null; // Store countdown display
+
+  // Listen for the Escape key to pause/unpause the game
+  document.addEventListener("keyup", function (event) {
+      if (event.key === "Escape") {
+          if (!isPaused) { // if not paused yet
+              pauseGame();
+          } else { // if already paused
+              resumeGame();
+          }
+      }
+  });
+
+  let is_flight_sound_playing=false;
+
+  // Function to pause the game
+  function pauseGame(){
+      if (isPaused) return;
+      isPaused = true;
+
+      if(!flightSound.paused){
+        is_flight_sound_playing=true;
+        flightSound.pause();
+      }     
+      show_pause();
+  }
+
+  // Function to resume the game
+  function resumeGame() {
+    if (!isPaused) return;
+    isPaused = false;
+
+    if(is_flight_sound_playing){
+      flightSound.play();
+    }
+      
+    is_flight_sound_playing=false;
+    hide_pause();
+  }
+
+
+  // Function to reset the game
+  function restartGame(){
+        isPaused=true;
+        window.location.href = "../memorization/index.html";
+  }
+
+  // Function to go back to the main menu
+  function backToMainMenu(){
+        isPaused=true;
+      window.location.href = "../index.html";
+  }
+
   //this is the auto load function load the background set the canvas size etc
 
   var window_h = window.innerHeight;
@@ -78,8 +188,8 @@
   nojets.src="nojets.png";
 
   let birdImage = new Image();
-  birdImage.src = "bird.png"
-  
+  birdImage.src = "bird.png"; // Bird image
+
   // Initialize birds
   initBirds(window_w, window_h);
 
@@ -180,8 +290,6 @@
     var yp=down_correction+window_h/2-jets_height/2 - y;
 
     draw_jets(graphics,xp,yp,scale);
-
-    //graphics.drawImage(jets,xp,yp,rocket_width,jets_height);
  
   }
 
@@ -194,7 +302,6 @@
   function start_flying(){
 
     fly_counter=20;
-    //speed=1;
     is_flying=1;
   }
 
@@ -232,67 +339,19 @@
     return is_base;
   }
 
-  function looped(){
-    // if the window got resized
-    window_h = window.innerHeight
-    window_w = window.innerWidth;
-    
-    draw_bg();
-
-    if(is_flying==1){
-      draw_flying(fly_counter);
-
-      fly_counter += speed;
-      speed += acceleration;
-
-      if(fly_counter>window_h-jets_height-jets_height/2){
-       fly_counter=window_h;
-        //speed=1;
-        is_flying=0;
-        is_base=0;
-        //or do whatever
-      }
-    }else{
-      if(is_base==1){
-        draw_stay_pooping();
-      }else{
-        populate_UI();
-      }
-    }
-
-    requestAnimationFrame(looped);
-  }
-
-  looped();
-
-  // Countdown function to display counter before launch
-  function startCountdown() {
-    if (is_counting_down) return; // Prevent multiple countdowns
-    is_counting_down = true;
-
-    var countdown = 10; // 10 second countdown
-    var countdownElement = document.createElement("div");
-
-    // Style the countdown display
-    countdownElement.style.position = "fixed";
-    countdownElement.style.top = "50%";
-    countdownElement.style.left = "50%";
-    countdownElement.style.transform = "translate(-50%, -50%)";
-    countdownElement.style.fontSize = "250px";
-    countdownElement.style.color = "white";
-    countdownElement.style.zIndex = "20";
-    countdownElement.id = "countdown-timer";
-    document.body.appendChild(countdownElement);
-
-    countdownElement.innerHTML = countdown;
-
-    // Play countdown sound
-    countdownSound.play();
+  function restartCountdown() {
+    if (countdown <= 0 || countdownInterval) return; // If already finished, do nothing
 
     countdownInterval = setInterval(function() {
+        
+      if(!isPaused){
         countdown--;
+        if(countdownSound.paused){
+          countdownSound.play();
+        }
+
         if (countdown >= 0) {
-          if(countdown != 0) countdownElement.innerHTML = countdown;
+            if (countdownElement) countdownElement.innerHTML = countdown;
         } else {
             clearInterval(countdownInterval);
             countdownInterval = null;
@@ -307,19 +366,90 @@
             flightSound.play();
 
             // Start the rocket launch
-            start_flying(); // Start the rocket launch
+            start_flying();
         }
-    }, 1000); // Countdown updates every second
+      }else{
+        countdownSound.pause();
+      }
+    }, 1000);
+  } 
+
+  // Countdown function to display counter before launch
+  function startCountdown() {
+    if (is_counting_down) return; // Prevent multiple countdowns
+
+    is_counting_down = true;
+
+    // Create or reuse countdown display
+    if (!countdownElement) {
+        countdownElement = document.createElement("div");
+        countdownElement.id = "countdown-timer";
+        document.body.appendChild(countdownElement);
+    }
+
+    countdownElement.style.position = "fixed";
+    countdownElement.style.top = "50%";
+    countdownElement.style.left = "50%";
+    countdownElement.style.transform = "translate(-50%, -50%)";
+    countdownElement.style.fontSize = "250px";
+    countdownElement.style.color = "white";
+    countdownElement.style.zIndex = "20";
+
+    countdownElement.innerHTML = countdown;
+
+    // Play countdown sound
+    countdownSound.play();
+
+    restartCountdown(); // Start or resume countdown
   }
 
-  </script>
+  function looped(){
+    
+    if(!isPaused){
+    // if the window got resized
+      window_h = window.innerHeight
+      window_w = window.innerWidth;
+    
+      draw_bg();
+
+      if(is_flying==1){
+        draw_flying(fly_counter);
+
+        fly_counter += speed;
+        speed += acceleration;
+
+        if(fly_counter>window_h-jets_height-jets_height/2){
+          fly_counter=window_h;
+          //speed=1;
+          is_flying=0;
+          is_base=0;
+          //or do whatever
+        } 
+      }else{
+        if(is_base==1){
+          draw_stay_pooping();
+        }else{
+            populate_UI();
+        }
+      }
+    }
+    animationFrameId = requestAnimationFrame(looped);
+  }
+
+  looped();
+
+</script>
 
   <!-- key handlers-->
   <script>
 
-    document.addEventListener('keydown', onkey);
+    document.addEventListener('keyup', onkey);
     function onkey(e){
-      if(e.key == ' ' && get_base()==1 && !is_counting_down){
+
+      // Check if the overlay is visible to avoid user input during game instruction
+      const isOverlayVisible = overlay.style.display !== "none";
+
+      if(e.key == ' ' && get_base()==1 && !is_counting_down && !isPaused && !isOverlayVisible){
         startCountdown();
         if(document.getElementById("welcome") != null)
           document.getElementById("welcome").remove();
@@ -328,14 +458,6 @@
       if(e.key == 'r')
         reset();
     }
-
-    // Stop flight music when any navigation button is clicked
-    document.querySelectorAll('.button').forEach(button => {
-      button.addEventListener('click', function (e) {
-        flightSound.pause();
-        flightSound.currentTime = 0; // Reset music to the beginning
-      });
-    });
   </script>
 
 </html>

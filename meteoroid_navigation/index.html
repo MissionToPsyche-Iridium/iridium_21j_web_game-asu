@@ -19,7 +19,6 @@
             /* Change background image here */
             background-size: cover;
         }
-
         #hud {
             position: fixed;
             top: 15px;
@@ -32,23 +31,66 @@
             border-radius: 10px;
             z-index: 10;
         }
-
         #hud div {
             margin: 5px 0;
         }
     </style>
+    <style>
+        .fancy_border_popup {
+          background-color: rgba(0, 0, 0, 0.9);
+          border: 3px solid white;
+          border-radius: 15px;
+          padding: 40px;
+          width: 400px;
+          text-align: center;
+        }
+      
+        .fancy_button {
+          background-color: #444;
+          color: white;
+          padding: 12px 24px;
+          border: none;
+          border-radius: 10px;
+          font-size: 18px;
+          cursor: pointer;
+          margin-top: 10px;
+        }
+      
+        .fancy_button:hover {
+          background-color: #666;
+        }
+      </style>
+      
 </head>
 <div id="hud">
     <div id="level">Level: 0</div>
     <div id="lives">Lives: 3</div>
 </div>
-
 <body>
     <canvas id="gameCanvas"></canvas>
 
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
+<div id="instructionsOverlay" style="
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); color: white; display: flex;
+    flex-direction: column; justify-content: center; align-items: center; z-index: 2000;">
+    <div class="fancy_border_popup">
+        <center><h3>How to Play</h3></center>
+        <ul style="text-align: left;">
+            <li>Use arrow keys to move in any direction</li>
+            <li>Avoid the meteoroids</li>
+            <li>Every 5 levels, you regain a life</li>
+            <li>Press Esc to pause the game</li>
+        </ul>
+        <center>
+            <button id="startGameBtn" class="fancy_button">Start Game</button>
+        </center>
+    </div>
+</div>
+
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -76,11 +118,12 @@
         let global_speed_factor = 0;
         let paused = false;
 
-        let avoid_count = 0;
-        let high_score = 0;
-        let avoidlim = 5;
-        let lives = 3;
-        let gameOver = false;
+    let avoid_count=0;
+    let high_score=0;
+    let avoidlim=5;
+    let lives = 3;
+    let gameOver = false;
+    let level5Reached = false;
 
         document.addEventListener('keydown', keyDownHandler);
         document.addEventListener('keyup', keyUpHandler);
@@ -91,7 +134,53 @@
                 object1.y < object2.y + object2.height &&
                 object1.y + object1.height > object2.y) {
 
-                return true;
+                    return true;
+                }
+          return false;
+    }
+
+    function keyDownHandler(e) {
+        if (e.key === 'ArrowLeft') spaceship.dx = -spaceship.speed;
+        else if (e.key === 'ArrowRight') spaceship.dx = spaceship.speed;
+        else if (e.key === 'ArrowUp') spaceship.dy = -spaceship.speed;
+        else if (e.key === 'ArrowDown') spaceship.dy = spaceship.speed;
+    }
+
+    function keyUpHandler(e) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') spaceship.dx = 0;
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') spaceship.dy = 0;
+    }
+
+    function createAsteroid() {
+        const size = Math.random() * 50 + 30;
+        asteroids.push({ x: Math.random() * (canvas.width - size), y: 0, width: size, height: size, speed: Math.random() * 3 + 2 });
+    }
+
+    function update() {
+        if(gameOver)
+        {
+            return;
+        }
+
+        spaceship.x += spaceship.dx;
+        spaceship.y += spaceship.dy;
+
+        if (spaceship.x < 0) spaceship.x = 0;
+        if (spaceship.x + spaceship.width > canvas.width) spaceship.x = canvas.width - spaceship.width;
+        if (spaceship.y < 0) spaceship.y = 0;
+        if (spaceship.y + spaceship.height > canvas.height) spaceship.y = canvas.height - spaceship.height;
+
+        asteroids.forEach((asteroid, index) => {
+            asteroid.y += asteroid.speed + global_speed_factor;
+        if (asteroid.y + asteroid.height > canvas.height){
+          asteroids.splice(index, 1);
+          if(avoid_count>avoidlim){
+            avoid_count=0;
+            score++;
+
+            if(score % 5 === 0)
+            {
+                regainlife();
             }
             return false;
         }
@@ -163,6 +252,15 @@
                 }
 
             });
+        });
+
+        // Level 5 Pause Check
+        if (score === 5 && !level5Reached) {
+            level5Reached = true;
+            paused = true;
+            level5Overlay.style.display = 'flex';
+        }
+    }
 
             bullets.forEach((bullet, bulletIndex) => {
                 asteroids.forEach((asteroid, asteroidIndex) => {
@@ -184,11 +282,10 @@
             ctx.drawImage(spaceshipImage, spaceship.x, spaceship.y, spaceship.width, spaceship.height);
         }
 
-        function drawAsteroids() {
-            asteroids.forEach(asteroid => {
-                ctx.drawImage(meteoroidImage, asteroid.x, asteroid.y, asteroid.width, asteroid.height);
-            });
-        }
+    function updateHUD() {
+        document.getElementById("level").textContent = "Level: " + score;
+        document.getElementById("lives").textContent = "Lives: " + lives;
+    }
 
         function drawBullets() {
             ctx.fillStyle = "orange";
@@ -197,24 +294,116 @@
             });
         }
 
-        function updateHUD() {
-            document.getElementById("level").textContent = "Level: " + score;
-            document.getElementById("lives").textContent = "Lives: " + lives;
-        }
+    //Menu Overlay
+    const menuOverlay = document.createElement('div');
+    menuOverlay.classList.add("fancy_border_popup");
+    menuOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    menuOverlay.style.color = 'white';
+    menuOverlay.style.position = 'fixed';
+    menuOverlay.style.top = '50%';
+    menuOverlay.style.left = '50%';
+    menuOverlay.style.transform = 'translate(-50%, -50%)';
+    menuOverlay.style.zIndex = '1000';
+    menuOverlay.style.display = 'none';
+    menuOverlay.style.flexDirection = 'column';
+    menuOverlay.style.justifyContent = 'center';
+    menuOverlay.style.alignItems = 'center';
+
+    document.body.appendChild(menuOverlay);
 
 
         function clearCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
-        const menuOverlay = document.createElement('div');
-        menuOverlay.style.position = 'fixed';
-        menuOverlay.style.top = '0';
-        menuOverlay.style.left = '0';
-        menuOverlay.style.width = '100%';
-        menuOverlay.style.height = '100%';
-        menuOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-        menuOverlay.style.color = 'white';
+    const mainMenuButton = document.createElement('button');
+    mainMenuButton.textContent = 'Main Menu';
+    mainMenuButton.style.margin = '10px';
+    mainMenuButton.style.padding = '10px 20px';
+    mainMenuButton.style.fontSize = '18px';
+
+    menuOverlay.appendChild(resumeButton);
+    menuOverlay.appendChild(restartButton);
+    menuOverlay.appendChild(mainMenuButton);
+
+    // Level 5 Overlay
+    const level5Overlay = document.createElement('div');
+    level5Overlay.style.position = 'fixed';
+    level5Overlay.style.top = '0';
+    level5Overlay.style.left = '0';
+    level5Overlay.style.width = '100%';
+    level5Overlay.style.height = '100%';
+    level5Overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+    level5Overlay.style.color = 'white';
+    level5Overlay.style.display = 'flex';
+    level5Overlay.style.flexDirection = 'column';
+    level5Overlay.style.justifyContent = 'center';
+    level5Overlay.style.alignItems = 'center';
+    level5Overlay.style.zIndex = '1001';
+    level5Overlay.style.display = 'none';
+
+    const congratsText = document.createElement('h1');
+    congratsText.textContent = '🎉 Congrats! You reached Level 5!';
+
+    const continueBtn = document.createElement('button');
+    continueBtn.textContent = 'Continue Playing';
+    continueBtn.style.margin = '10px';
+    continueBtn.style.padding = '10px 20px';
+    continueBtn.style.fontSize = '18px';
+
+    const nextGameBtn = document.createElement('button');
+    nextGameBtn.textContent = 'Next Game';
+    nextGameBtn.style.margin = '10px';
+    nextGameBtn.style.padding = '10px 20px';
+    nextGameBtn.style.fontSize = '18px';
+
+    level5Overlay.appendChild(congratsText);
+    level5Overlay.appendChild(continueBtn);
+    level5Overlay.appendChild(nextGameBtn);
+    document.body.appendChild(level5Overlay);
+
+    continueBtn.addEventListener('click', () => {
+        level5Overlay.style.display = 'none';
+        paused = false;
+        floatingNextGameBtn.style.display = 'inline-block';
+    });
+
+
+    nextGameBtn.addEventListener('click', () => {
+        location.href = '../psyche_educational_game/psyche_educational_page.html';
+    });
+
+    // Floating Next Game button (top-right corner)
+    const floatingNextGameBtn = document.createElement('button');
+    floatingNextGameBtn.textContent = 'Next Game';
+    floatingNextGameBtn.style.position = 'fixed';
+    floatingNextGameBtn.style.top = '20px';
+    floatingNextGameBtn.style.right = '20px';
+    floatingNextGameBtn.style.padding = '10px 15px';
+    floatingNextGameBtn.style.fontSize = '16px';
+    floatingNextGameBtn.style.backgroundColor = '#444';
+    floatingNextGameBtn.style.color = 'white';
+    floatingNextGameBtn.style.border = 'none';
+    floatingNextGameBtn.style.borderRadius = '5px';
+    floatingNextGameBtn.style.cursor = 'pointer';
+    floatingNextGameBtn.style.zIndex = '1002';
+    floatingNextGameBtn.style.display = 'none';
+
+    floatingNextGameBtn.addEventListener('click', () => {
+        location.href = '../psyche_educational_game/psyche_educational_page.html';
+    });
+
+    document.body.appendChild(floatingNextGameBtn);
+
+
+    function togglePause() {
+        paused = !paused;
+        menuOverlay.style.display = paused ? 'flex' : 'none';
+    }
+
+    function triggerGameOver() {
+        gameOver = true;
+        paused = false;
         menuOverlay.style.display = 'flex';
         menuOverlay.style.flexDirection = 'column';
         menuOverlay.style.justifyContent = 'center';
@@ -293,7 +482,14 @@
                 drawBullets();
                 update();
 
-                if (score < 0) score = 0;
+    function gameLoop() {
+        if (!paused && !gameOver) {
+        updateHUD();
+        clearCanvas();
+        drawSpaceship();
+        drawAsteroids();
+        drawBullets();
+        update();
 
                 difficulty = score / 100.0;
 
@@ -318,5 +514,16 @@
             requestAnimationFrame(gameLoop);
         }
 
-        gameLoop();
-    </script>
+        if (Math.random() < difficulty) createAsteroid();
+        } else {
+            updateHUD();
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    document.getElementById('startGameBtn').addEventListener('click', () => {
+    document.getElementById('instructionsOverlay').style.display = 'none';
+    gameLoop();
+});
+</script>

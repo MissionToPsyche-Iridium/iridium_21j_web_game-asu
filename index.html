@@ -25,7 +25,8 @@
     <h1>Choose your next mission!</h1>
 
     <!-- Game Buttons -->
-    <a class="button" href="launch sequence/index.html">🚀 Launch Sequence</a>
+    <a class="button" href="dashboard/index.html">🎛️ Dashboard</a>
+    <a class="button game-button" href="launch sequence/index.html">🚀 Launch Sequence</a>
     <a class="button game-button" href="meteoroid_navigation/index.html">☄️ Meteoroid Navigation</a>
     <a class="button game-button" href="psyche_educational_game/psyche_educational_page.html">📡 Contact</a>
 
@@ -83,8 +84,8 @@
     // Load Storyline Mode state from sessionStorage (NOT localStorage)
     window.onload = function () {
         if (sessionStorage.getItem("storylineMode") === null) {
-            // First time loading, start with switch OFF
-            sessionStorage.setItem("storylineMode", "false");
+            // First time loading, start with switch ON
+            sessionStorage.setItem("storylineMode", "true");
         }
 
         const storylineEnabled = sessionStorage.getItem("storylineMode") === "true";

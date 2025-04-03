@@ -1,0 +1,28 @@
+.fancy_border_popup{
+  background:#FFF;
+  width:25%;
+  border-radius:4px;
+  box-shadow: 5px 5px 5px #000;
+  border: 2px solid #c4c4c4;
+  margin:3px 3px;
+  padding:5px 5px;
+}
+.fancy_button{
+  background: #c4c4c4;
+  padding:7px 7px;
+  border-radius:4px;
+  border:3px solid #c4c4c4;
+  cursor:pointer;
+  transition: background 1s, border 1s, color, 1s;
+}
+.wide-button{
+  width:90%;
+  margin:5px 5px;
+}
+
+.fancy_button:hover{
+
+  background:#edebeb;
+  border:3px solid #edebeb;
+  color:#959595;
+}

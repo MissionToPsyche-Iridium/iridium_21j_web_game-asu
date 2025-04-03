@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Psyche Asteroid Game</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psyche Educational Page</title>
+
     <style>
         /* General Styles */
         body {
             margin: 0;
             overflow: hidden;
-            background-color: black;
+            background: black;
             font-family: Arial, sans-serif;
             color: white;
             text-align: center;
@@ -54,7 +57,32 @@
             100% { opacity: 0.5; transform: scale(1); }
         }
 
-        /* Game Container */
+        /* Border How To Play Overlay */
+        .fancy_border_popup {
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 3px solid white;
+            border-radius: 15px;
+            padding: 40px;
+            width: 400px;
+            text-align: center;
+        }
+
+        /* Button in How To Play Overlay */
+        .fancy_button {
+            background-color: #444;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+      
+        .fancy_button:hover {
+            background-color: #666;
+        }
+
         #game-container {
             position: relative;
             width: 100vw;
@@ -224,7 +252,6 @@
         #endgame-buttons button:hover {
             background: #0277bd;
         }
-
     </style>
 </head>
 <body>
@@ -232,6 +259,24 @@
 <!-- Starry Background (Behind Everything) -->
 <div class="background-container">
     <div class="stars-container"></div>
+</div>
+
+<div id="instructionsOverlay" style="
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); color: white; display: flex;
+    flex-direction: column; justify-content: center; align-items: center; z-index: 2000;">
+    <div class="fancy_border_popup">
+        <center><h3>How to Play</h3></center>
+        <ul style="text-align: left;">
+            <li>Discover new areas on the Psyche Asteroid.</li>
+            <li>Hover your mouse over certain areas to reveal a hotspot!</li>
+            <li>Click on the hotspots to learn more about Psyche!</li>
+            <li>Press Esc to pause the game</li>
+        </ul>
+        <center>
+            <button id="startGameBtn" class="fancy_button">Start Game</button>
+        </center>
+    </div>
 </div>
 
 <!-- Game Container -->
@@ -253,12 +298,10 @@
       
         <div class="hotspot" style="top: 65%; left: 85%;" onclick="showInfo(this, 'Goals of the Mission', 'Goals include determining if Psyche is a planetary core, studying its surface and magnetic field, and understanding the building blocks of rocky planets.')"></div>
       
-        <div class="hotspot" style="top: 63%; left: 25%;" onclick="showInfo(this, 'When Will Psyche Reach the Asteroid?', 'NASA’s Psyche spacecraft launched on October 13, 2023. It is expected to reach the asteroid in August 2029 and will orbit it for about 21 months.')"></div>
+        <div class="hotspot" style="top: 63%; left: 25%;" onclick="showInfo(this, 'When Will Psyche Reach the Asteroid?', 'NASA’s Psyche spacecraft launched on October 13, 2023. It is expected to reach the asteroid in August 2029 and will orbit it for about 26 months.')"></div>
       
         <div class="hotspot" style="top: 75%; left: 60%;" onclick="showInfo(this, 'What Is an Asteroid?', 'Asteroids are rocky remnants from the early solar system. Most orbit the Sun between Mars and Jupiter in the asteroid belt. They can reveal clues about planet formation.')"></div>
       </div>
-      
-
     <div id="satellite"></div>
 </div>
 
@@ -303,7 +346,7 @@
         <h2>References</h2>
         <ul>
             <li>
-                <em>Asteroid 16 Psyche: Psyche Mission - A Mission to a Metal World</em>. Retrieved April 1, 2025, from 
+                Arizona State University. (n.d.). <em>The Asteroid – NASA Psyche Mission</em>. Retrieved April 1, 2025, from 
                 <a href="https://psyche.asu.edu/mission/the-asteroid/" target="_blank">
                 https://psyche.asu.edu/mission/the-asteroid/
                 </a>
@@ -336,9 +379,9 @@
       <button onclick="location.reload()">Continue</button>
     </div>
   </div>
-  
 
 <script>
+    let paused = false;
     let selectedHotspot = null;
     const discoveredHotspots = new Set();
 
@@ -359,6 +402,8 @@
     });
 
     function showInfo(element, title, text) {
+        if (paused) return;
+
         // Only add to discovered set if this hotspot hasn't been clicked before
         if (!discoveredHotspots.has(element)) {
             discoveredHotspots.add(element);
@@ -394,6 +439,78 @@
             selectedHotspot = null;
         }
     }
+
+    const menuOverlay = document.createElement('div');
+    menuOverlay.classList.add('fancy_border_popup');
+    menuOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    menuOverlay.style.color = 'white';
+    menuOverlay.style.position = 'fixed';
+    menuOverlay.style.top = '50%';
+    menuOverlay.style.left = '50%';
+    menuOverlay.style.transform = 'translate(-50%, -50%)';
+    menuOverlay.style.zIndex = '1000';
+    menuOverlay.style.display = 'none';
+    menuOverlay.style.flexDirection = 'column';
+    menuOverlay.style.justifyContent = 'center';
+    menuOverlay.style.alignItems = 'center';
+    document.body.appendChild(menuOverlay);
+
+    const resumeButton = document.createElement('button');
+    resumeButton.textContent = 'Resume Game';
+    resumeButton.style.margin = '10px';
+    resumeButton.style.padding = '10px 20px';
+    resumeButton.style.fontSize = '18px';
+
+    const restartButton = document.createElement('button');
+    restartButton.textContent = 'Restart Game';
+    restartButton.style.margin = '10px';
+    restartButton.style.padding = '10px 20px';
+    restartButton.style.fontSize = '18px';
+
+    const mainMenuButton = document.createElement('button');
+    mainMenuButton.textContent = 'Main Menu';
+    mainMenuButton.style.margin = '10px';
+    mainMenuButton.style.padding = '10px 20px';
+    mainMenuButton.style.fontSize = '18px';
+
+    menuOverlay.appendChild(resumeButton);
+    menuOverlay.appendChild(restartButton);
+    menuOverlay.appendChild(mainMenuButton);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            togglePause();
+        }
+    });
+
+    function togglePause() {
+        paused = !paused;
+        menuOverlay.style.display = paused ? 'flex' : 'none';
+
+        const satellite = document.getElementById('satellite');
+
+        if (paused) {
+            satellite.style.animationPlayState = 'paused';
+        } else {
+            satellite.style.animationPlayState = 'running';
+        }
+    }
+
+    resumeButton.addEventListener('click', () => {
+        togglePause();
+    });
+
+    restartButton.addEventListener('click', () => {
+        location.reload();
+    });
+
+    mainMenuButton.addEventListener('click', () => {
+        location.href = '../index.html';
+    });
+
+    document.getElementById('startGameBtn').addEventListener('click', () => {
+        document.getElementById('instructionsOverlay').style.display = 'none';
+    });
 
     function updateHotspotCounter() {
         const counter = document.getElementById("hotspot-counter");
@@ -432,8 +549,6 @@
 
     scrollStep(); // Start auto scroll
 }
-
-
 </script>
 
 
