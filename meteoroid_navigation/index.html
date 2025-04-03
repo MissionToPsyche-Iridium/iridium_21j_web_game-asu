@@ -17,6 +17,21 @@
             background-image: url('space-background.png'); /* Change background image here */
             background-size: cover;
         }
+        #hud {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            font-size: 40px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 10px;
+            z-index: 10;
+        }
+        #hud div {
+            margin: 5px 0;
+        }
     </style>
     <style>
         .fancy_border_popup {
@@ -45,6 +60,10 @@
       </style>
       
 </head>
+<div id="hud">
+    <div id="level">Level: 0</div>
+    <div id="lives">Lives: 3</div>
+</div>
 <body>
 <canvas id="gameCanvas"></canvas>
 
@@ -56,7 +75,7 @@
         <center><h3>How to Play</h3></center>
         <ul style="text-align: left;">
             <li>Use arrow keys to move in any direction</li>
-            <li>Avoid the meteors</li>
+            <li>Avoid the meteoroids</li>
             <li>Every 5 levels, you regain a life</li>
             <li>Press Esc to pause the game</li>
         </ul>
@@ -130,10 +149,6 @@
         if (e.key === 'ArrowUp' || e.key === 'ArrowDown') spaceship.dy = 0;
     }
 
-    function shoot() {
-        bullets.push({ x: spaceship.x + spaceship.width / 2 - 5, y: spaceship.y, width: 20, height: 40 });
-    }
-
     function createAsteroid() {
         const size = Math.random() * 50 + 30;
         asteroids.push({ x: Math.random() * (canvas.width - size), y: 0, width: size, height: size, speed: Math.random() * 3 + 2 });
@@ -152,11 +167,6 @@
         if (spaceship.x + spaceship.width > canvas.width) spaceship.x = canvas.width - spaceship.width;
         if (spaceship.y < 0) spaceship.y = 0;
         if (spaceship.y + spaceship.height > canvas.height) spaceship.y = canvas.height - spaceship.height;
-
-        bullets.forEach((bullet, index) => {
-            bullet.y -= 10;
-            if (bullet.y + bullet.height < 0) bullets.splice(index, 1);
-        });
 
         asteroids.forEach((asteroid, index) => {
             asteroid.y += asteroid.speed + global_speed_factor;
@@ -230,11 +240,9 @@
         });
     }
 
-    function drawScore() {
-        ctx.fillStyle = "white";
-        ctx.font = "20px Arial";
-        ctx.fillText("Score: " + score + " high score: " + high_score, 10, 20);
-        ctx.fillText("Lives: " + lives, 10, 50);
+    function updateHUD() {
+        document.getElementById("level").textContent = "Level: " + score;
+        document.getElementById("lives").textContent = "Lives: " + lives;
     }
 
     function clearCanvas() {
@@ -392,11 +400,11 @@
 
     function gameLoop() {
         if (!paused && !gameOver) {
+        updateHUD();
         clearCanvas();
         drawSpaceship();
         drawAsteroids();
         drawBullets();
-        drawScore();
         update();
 
         if (score < 0) score = 0;
@@ -418,7 +426,7 @@
 
         if (Math.random() < difficulty) createAsteroid();
         } else {
-            drawScore();
+            updateHUD();
         }
 
         requestAnimationFrame(gameLoop);

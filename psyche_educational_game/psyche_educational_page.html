@@ -15,6 +15,48 @@
             text-align: center;
         }
 
+        /* Starry Background */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            overflow: hidden;
+            z-index: -1; /* Keeps it behind game elements */
+        }
+
+        .stars-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle infinite alternate ease-in-out;
+        }
+
+        /* Different Star Sizes */
+        .star:nth-child(3n) { width: 3px; height: 3px; }
+        .star:nth-child(5n) { width: 4px; height: 4px; }
+
+        /* Twinkling Effect */
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.5; transform: scale(1); }
+        }
+
+        /* Border How To Play Overlay */
         .fancy_border_popup {
             background-color: rgba(0, 0, 0, 0.9);
             border: 3px solid white;
@@ -24,6 +66,7 @@
             text-align: center;
         }
 
+        /* Button in How To Play Overlay */
         .fancy_button {
             background-color: #444;
             color: white;
@@ -50,8 +93,8 @@
 
         #asteroid {
             position: relative;
-            width: 400px;
-            height: 400px;
+            width: 720px;
+            height: 720px;
             background: url('psyche_asteroid.png') no-repeat center/contain;
         }
 
@@ -60,31 +103,45 @@
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            border: 2px solid transparent;
+            border: 2px solid rgba(255, 255, 255, 0.4); /* Faint white border */
+            background-color: rgba(255, 255, 255, 0.1); /* Slight glow base */
             cursor: pointer;
             transform: translate(-50%, -50%);
+            animation: pulse 2s infinite ease-in-out;
             transition: border-color 0.2s ease-in-out;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
         }
 
-        .hotspot:hover {
-            border-color: white;
-        }
-
+        .hotspot:hover,
         .hotspot.selected {
             border-color: white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            }
+            100% {
+                box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+            }
         }
 
         #satellite {
             position: absolute;
-            width: 80px;
-            height: 80px;
+            width: 160px;
+            height: 160px;
             background: url('psyche_satellite.png') no-repeat center/contain;
-            animation: orbit 15s linear infinite;
+            animation: orbit 30s linear infinite;
         }
 
         @keyframes orbit {
-            0%   { transform: rotate(0deg) translateX(250px) rotate(0deg); }
-            100% { transform: rotate(360deg) translateX(250px) rotate(-360deg); }
+            0%   { transform: rotate(0deg) translateX(430px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(430px) rotate(-360deg); }
         }
 
         #info-pane {
@@ -109,9 +166,99 @@
             border: none;
             border-radius: 5px;
         }
+
+        #hotspot-counter {
+            position: fixed;
+            top: 50px;
+            right: 100px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 40px;
+            z-index: 5;
+            font-weight: bold;
+            border: 2px solid #81d4fa;
+            box-shadow: 0 0 8px rgba(129, 212, 250, 0.5);
+        }
+
+        #game-complete {
+            position: fixed;
+            top: 120px;
+            right: 100px;
+            background: rgba(0, 128, 0, 0.8);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 18px;
+            z-index: 5;
+            font-weight: bold;
+            display: none;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Endgame Scroll Modal */
+        #endgame-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 600px;
+            height: 800px;
+            background: rgba(20, 20, 20, 0.95);
+            color: white;
+            transform: translate(-50%, -50%);
+            border-radius: 15px;
+            padding: 20px;
+            z-index: 10;
+            display: none;
+            overflow: hidden;
+            border: 2px solid #81d4fa;
+            box-shadow: 0 0 20px rgba(129, 212, 250, 0.8);
+        }
+
+        #endgame-scroll {
+            height: 700px;
+            overflow-y: auto;
+            padding-right: 10px;
+            text-align: left;
+            padding-right: 10px;
+        }
+
+        #endgame-buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        #endgame-buttons button {
+            padding: 16px 32px;
+            border: none;
+            background: #0288d1;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(2, 136, 209, 0.8);
+        }
+
+        #endgame-buttons button:hover {
+            background: #0277bd;
+        }
     </style>
 </head>
 <body>
+
+<!-- Starry Background (Behind Everything) -->
+<div class="background-container">
+    <div class="stars-container"></div>
+</div>
 
 <div id="instructionsOverlay" style="
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -131,38 +278,152 @@
     </div>
 </div>
 
-<!-- Main hotspot content -->
+<!-- Game Container -->
 <div id="game-container">
     <div id="asteroid">
-        <div class="hotspot" style="top: 30%; left: 40%;" 
-             onclick="showInfo(this, 'Crater A', 'This crater is believed to be one of the oldest impact sites on Psyche.')"></div>
-        <div class="hotspot" style="top: 60%; left: 70%;" 
-             onclick="showInfo(this, 'Metal Deposit', 'This region has a high concentration of nickel and iron, indicating Psyche’s metallic nature.')"></div>
-        <div class="hotspot" style="top: 50%; left: 20%;" 
-             onclick="showInfo(this, 'Magnetic Anomaly', 'Scientists detected unusual magnetic readings in this area, suggesting remnants of a planetary core.')"></div>
-    </div>
+        <div class="hotspot" style="top: 18%; left: 25%;" onclick="showInfo(this, 'Discovery and Naming', 'Asteroid 16 Psyche was discovered on March 17, 1852, by Italian astronomer Annibale de Gasparis. He named it after Psyche, the Greek goddess of the soul.')"></div>
+      
+        <div class="hotspot" style="top: 30%; left: 65%;" onclick="showInfo(this, 'Orbit and Location', 'Psyche orbits the Sun in the main asteroid belt between Mars and Jupiter, about three times farther from the Sun than Earth. Its orbital period is about five Earth years.')"></div>
+      
+        <div class="hotspot" style="top: 42%; left: 30%;" onclick="showInfo(this, 'Size and Shape', 'Psyche measures approximately 279 km x 232 km x 189 km. If it were a sphere, its average diameter would be about 226 km (140 miles).')"></div>
+      
+        <div class="hotspot" style="top: 55%; left: 55%;" onclick="showInfo(this, 'Surface Area', 'Psyche’s surface area is roughly 165,800 square kilometers (about 64,000 square miles), close to the size of Missouri.')"></div>
+      
+        <div class="hotspot" style="top: 65%; left: 40%;" onclick="showInfo(this, 'Density and Composition', 'Psyche is thought to be primarily made of metallic iron and nickel. Its estimated density ranges from 3,400 to 4,100 kg/m³, indicating it’s significantly more dense than common rock.')"></div>
+      
+        <div class="hotspot" style="top: 15%; left: 55%;" onclick="showInfo(this, 'What Is Psyche’s Story?', 'Scientists believe Psyche may be the remnant metallic core of a protoplanet that lost its outer layers due to massive collisions during the early solar system.')"></div>
+      
+        <div class="hotspot" style="top: 38%; left: 18%;" onclick="showInfo(this, 'About the Psyche Mission', 'NASA’s Psyche mission is designed to orbit and study the asteroid to gain insights into the formation of planetary cores. The spacecraft uses solar-electric propulsion and includes a Mars gravity assist.')"></div>
+      
+        <div class="hotspot" style="top: 65%; left: 85%;" onclick="showInfo(this, 'Goals of the Mission', 'Goals include determining if Psyche is a planetary core, studying its surface and magnetic field, and understanding the building blocks of rocky planets.')"></div>
+      
+        <div class="hotspot" style="top: 63%; left: 25%;" onclick="showInfo(this, 'When Will Psyche Reach the Asteroid?', 'NASA’s Psyche spacecraft launched on October 13, 2023. It is expected to reach the asteroid in August 2029 and will orbit it for about 26 months.')"></div>
+      
+        <div class="hotspot" style="top: 75%; left: 60%;" onclick="showInfo(this, 'What Is an Asteroid?', 'Asteroids are rocky remnants from the early solar system. Most orbit the Sun between Mars and Jupiter in the asteroid belt. They can reveal clues about planet formation.')"></div>
+      </div>
     <div id="satellite"></div>
 </div>
 
+<!-- Info Pane -->
 <div id="info-pane">
     <h2 id="info-title">Title</h2>
     <p id="info-text">Description</p>
     <button id="close-btn" onclick="closeInfo()">Close</button>
 </div>
 
+<!-- Hotspot Counter -->
+<div id="hotspot-counter">Found: 0 / 3</div>
+
+<!-- Completion Message (Hidden Initially) -->
+<div id="game-complete">All Hotspots Found!</div>
+
+<!-- Endgame Scroll Modal -->
+<div id="endgame-modal">
+    <div id="endgame-scroll">
+      <div id="endgame-scroll-content">
+        <h1>
+            🎉 Psyche Exploration Complete!
+            <span style="display: inline-block; transform: scaleX(-1);">🎉</span>
+          </h1>
+          
+  
+        <h2>Team</h2>
+        <p>🛰️ Rina Kawamura – Computer Science, BS</p>
+        <p>🚀 Brandon Martin – Computer Science, BS</p>
+        <p>🪐 McTyler Tong – Computer Science, BS</p>
+        <p>🌌 Evan Nikitin – Computer Systems, BSE</p>
+  
+        <h2>Project</h2>
+        <p>This educational game was developed as part of Arizona State University's CSE 485 Capstone Project, in collaboration with NASA’s Psyche Mission. It aims to educate players about asteroid Psyche in an interactive and engaging way.</p>
+  
+        <h2>Special Thanks</h2>
+        <p>Special thanks to the NASA Psyche Team, Arizona State University faculty, and all collaborators who help support the mission and this project.</p>
+  
+        <h2>Disclaimer</h2>
+        <p>This work was created in partial fulfillment of Arizona State University Capstone Course “CSE 485″. The work is a result of the Psyche Student Collaborations component of NASA’s Psyche Mission (<a href="https://psyche.asu.edu" target="_blank" style="color: #81d4fa;">psyche.asu.edu</a>). “Psyche: A Journey to a Metal World” [Contract number NNM16AA09C] is part of the NASA Discovery Program mission to solar system targets. Trade names and trademarks of ASU and NASA are used in this work for identification only. Their usage does not constitute an official endorsement, either expressed or implied, by Arizona State University or National Aeronautics and Space Administration. The content is solely the responsibility of the authors and does not necessarily represent the official views of ASU or NASA.</p>
+  
+        <h2>References</h2>
+        <ul>
+            <li>
+                Arizona State University. (n.d.). <em>The Asteroid – NASA Psyche Mission</em>. Retrieved April 1, 2025, from 
+                <a href="https://psyche.asu.edu/mission/the-asteroid/" target="_blank">
+                https://psyche.asu.edu/mission/the-asteroid/
+                </a>
+            </li>
+            <li>
+                NASA Science. (n.d.). <em>16 Psyche</em>. Retrieved April 1, 2025, from 
+                <a href="https://science.nasa.gov/solar-system/asteroids/16-psyche/" target="_blank">
+                https://science.nasa.gov/solar-system/asteroids/16-psyche/
+                </a>
+            </li>
+            <li>
+                Wall, M. (2023, October 13). <em>NASA's Psyche asteroid mission launches to a metal world</em>. Space.com. Retrieved April 1, 2025, from 
+                <a href="https://www.space.com/psyche-metal-asteroid-composition" target="_blank">
+                https://www.space.com/psyche-metal-asteroid-composition
+                </a>
+            </li>
+            <li>
+                NASA Jet Propulsion Laboratory. (n.d.). <em>Psyche Mission</em>. Retrieved April 1, 2025, from 
+                <a href="https://www.jpl.nasa.gov/missions/psyche" target="_blank">
+                https://www.jpl.nasa.gov/missions/psyche
+                </a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  
+    <!-- Endgame Buttons -->
+    <div id="endgame-buttons">
+      <button onclick="location.href='../index.html'">Main Menu</button>
+      <button onclick="location.reload()">Continue</button>
+    </div>
+  </div>
+
 <script>
     let paused = false;
     let selectedHotspot = null;
+    const discoveredHotspots = new Set();
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Star background generation
+        const starsContainer = document.querySelector(".stars-container");
+        for (let i = 0; i < 500; i++) {
+            let star = document.createElement("div");
+            star.classList.add("star");
+            star.style.top = Math.random() * 100 + "vh";
+            star.style.left = Math.random() * 100 + "vw";
+            star.style.animationDuration = (Math.random() * 5 + 3) + "s";
+            starsContainer.appendChild(star);
+        }
+
+        // Initialize the hotspot counter
+        updateHotspotCounter();
+    });
 
     function showInfo(element, title, text) {
         if (paused) return;
 
+        // Only add to discovered set if this hotspot hasn't been clicked before
+        if (!discoveredHotspots.has(element)) {
+            discoveredHotspots.add(element);
+            updateHotspotCounter();
+
+            if (discoveredHotspots.size === document.querySelectorAll('.hotspot').length) {
+                document.getElementById("game-complete").style.display = "block";
+                setTimeout(() => {
+                    document.getElementById("endgame-modal").style.display = "block";
+                    autoScrollCredits(); // <-- Start auto scroll
+                }, 1000);
+            }
+        }
+
+        // Deselect previous hotspot visually (but don't remove from discovered)
         if (selectedHotspot) {
-            selectedHotspot.classList.remove('selected');
+            selectedHotspot.classList.remove("selected");
         }
 
         selectedHotspot = element;
-        selectedHotspot.classList.add('selected');
+        selectedHotspot.classList.add("selected");
 
         document.getElementById('info-title').innerText = title;
         document.getElementById('info-text').innerText = text;
@@ -249,6 +510,44 @@
     document.getElementById('startGameBtn').addEventListener('click', () => {
         document.getElementById('instructionsOverlay').style.display = 'none';
     });
+
+    function updateHotspotCounter() {
+        const counter = document.getElementById("hotspot-counter");
+        const total = document.querySelectorAll(".hotspot").length;
+        counter.innerText = `Found: ${discoveredHotspots.size} / ${total}`;
+    }
+
+    function autoScrollCredits() {
+    const scrollBox = document.getElementById("endgame-scroll");
+    let scrollSpeed = 1; // pixels per frame
+    let autoScrollActive = true;
+
+    function scrollStep() {
+        if (!autoScrollActive) return;
+
+        const maxScroll = scrollBox.scrollHeight - scrollBox.clientHeight;
+
+        if (scrollBox.scrollTop < maxScroll) {
+            scrollBox.scrollTop += scrollSpeed;
+            requestAnimationFrame(scrollStep);
+        } else {
+            autoScrollActive = false; // Stop auto-scroll when bottom reached
+        }
+    }
+
+    // Cancel auto scroll on any manual user interaction
+    scrollBox.addEventListener("wheel", () => {
+        autoScrollActive = false;
+    });
+    scrollBox.addEventListener("touchstart", () => {
+        autoScrollActive = false;
+    });
+    scrollBox.addEventListener("mousedown", () => {
+        autoScrollActive = false;
+    });
+
+    scrollStep(); // Start auto scroll
+}
 </script>
 
 </body>
