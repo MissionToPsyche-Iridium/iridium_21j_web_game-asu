@@ -6,6 +6,7 @@
     <title>Psyche Educational Page</title>
 
     <style>
+        /* General Styles */
         body {
             margin: 0;
             overflow: hidden;
@@ -37,8 +38,8 @@
 
         .star {
             position: absolute;
-            width: 2px;
-            height: 2px;
+            width: calc(2 / 1920 * 100vw);
+            height: calc(2 / 1920 * 100vw);
             background: white;
             border-radius: 50%;
             opacity: 0;
@@ -46,8 +47,8 @@
         }
 
         /* Different Star Sizes */
-        .star:nth-child(3n) { width: 3px; height: 3px; }
-        .star:nth-child(5n) { width: 4px; height: 4px; }
+        .star:nth-child(3n) { width: calc(3 / 1920 * 100vw); height: calc(3 / 1920 * 100vw); }
+        .star:nth-child(5n) { width: calc(4 / 1920 * 100vw); height: calc(4 / 1920 * 100vw); }
 
         /* Twinkling Effect */
         @keyframes twinkle {
@@ -93,93 +94,101 @@
 
         #asteroid {
             position: relative;
-            width: 720px;
-            height: 720px;
+            width: calc(720 / 1920 * 100vw);
+            height: calc(720 / 1920 * 100vw);
             background: url('psyche_asteroid.png') no-repeat center/contain;
         }
 
         .hotspot {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: calc(30 / 1920 * 100vw);
+            height: calc(30 / 1920 * 100vw);
             border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.4); /* Faint white border */
+            border: calc(2 / 1920 * 100vw) solid rgba(255, 255, 255, 0.4); /* Faint white border */
             background-color: rgba(255, 255, 255, 0.1); /* Slight glow base */
             cursor: pointer;
             transform: translate(-50%, -50%);
             animation: pulse 2s infinite ease-in-out;
             transition: border-color 0.2s ease-in-out;
-            box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 calc(6 / 1920 * 100vw) rgba(255, 255, 255, 0.2);
         }
 
         .hotspot:hover,
         .hotspot.selected {
             border-color: white;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 calc(10 / 1920 * 100vw) rgba(255, 255, 255, 0.8);
         }
 
         /* Pulse Animation */
         @keyframes pulse {
             0% {
-                box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+                box-shadow: 0 0 calc(6 / 1920 * 100vw) rgba(255, 255, 255, 0.3);
             }
             50% {
-                box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+                box-shadow: 0 0 calc(15 / 1920 * 100vw) rgba(255, 255, 255, 0.8);
             }
             100% {
-                box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+                box-shadow: 0 0 calc(6 / 1920 * 100vw) rgba(255, 255, 255, 0.3);
             }
         }
 
         #satellite {
             position: absolute;
-            width: 160px;
-            height: 160px;
+            width: calc(160 / 1920 * 100vw);
+            height: calc(160 / 1920 * 100vw);
             background: url('psyche_satellite.png') no-repeat center/contain;
             animation: orbit 30s linear infinite;
         }
 
         @keyframes orbit {
-            0%   { transform: rotate(0deg) translateX(430px) rotate(0deg); }
-            100% { transform: rotate(360deg) translateX(430px) rotate(-360deg); }
+            0%   { transform: rotate(0deg) translateX(calc(430 / 1920 * 100vw)) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(calc(430 / 1920 * 100vw)) rotate(-360deg); }
         }
 
         #info-pane {
             position: fixed;
             bottom: 10%;
-            left: 50%;
+            left: 25%;
             transform: translateX(-50%);
             background-color: rgba(50, 50, 50, 0.9);
-            padding: 20px;
-            border-radius: 10px;
+            padding: calc(20 / 1920 * 100vw);
+            border-radius: calc(10 / 1920 * 100vw);
             display: none;
-            width: 300px;
-            border: 2px solid white;
+            width: calc(300 / 1920 * 100vw);
+            border: calc(2 / 1920 * 100vw) solid white;
+        }
+
+        #info-pane h2 {
+            font-size: calc(28 / 1920 * 100vw);
+        }
+        #info-pane p {
+            font-size: calc(18 / 1920 * 100vw);
         }
 
         #close-btn {
-            margin-top: 10px;
-            padding: 5px;
+            font-size: calc(26 / 1920 * 100vw);
+            margin-top: calc(10 / 1920 * 100vw) calc(20 / 1920 * 100vw);
+            padding: calc(5 / 1920 * 100vw);
             cursor: pointer;
             background: red;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: calc(5 / 1920 * 100vw);
         }
 
         #hotspot-counter {
             position: fixed;
-            top: 50px;
-            right: 100px;
+            top: calc(50 / 1920 * 100vw);
+            right: calc(100 / 1920 * 100vw);
             background: rgba(0, 0, 0, 0.6);
             color: white;
-            padding: 10px 16px;
-            border-radius: 10px;
-            font-size: 40px;
+            padding: calc(10 / 1920 * 100vw) calc(16 / 1920 * 100vw);
+            border-radius: calc(10 / 1920 * 100vw);
+            font-size: calc(40 / 1920 * 100vw);
             z-index: 5;
             font-weight: bold;
-            border: 2px solid #81d4fa;
-            box-shadow: 0 0 8px rgba(129, 212, 250, 0.5);
+            border: calc(2 / 1920 * 100vw) solid #81d4fa;
+            box-shadow: 0 0 calc(8 / 1920 * 100vw) rgba(129, 212, 250, 0.5);
         }
 
         #game-complete {
@@ -203,6 +212,10 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /*      TODO: 
+                        Fix sizing from here on       
+        */
+        
         /* Endgame Scroll Modal */
         #endgame-modal {
             position: fixed;
@@ -260,23 +273,53 @@
     <div class="stars-container"></div>
 </div>
 
+
+<!--Cleaned and fixed-->
 <div id="instructionsOverlay" style="
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); color: white; display: flex;
-    flex-direction: column; justify-content: center; align-items: center; z-index: 2000;">
-    <div class="fancy_border_popup">
-        <center><h3>How to Play</h3></center>
-        <ul style="text-align: left;">
-            <li>Discover new areas on the Psyche Asteroid.</li>
-            <li>Hover your mouse over certain areas to reveal a hotspot!</li>
-            <li>Click on the hotspots to learn more about Psyche!</li>
-            <li>Press Esc to pause the game</li>
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    font-size: calc(18 / 1920 * 100vw); /* base text size */
+    padding: calc(20 / 1920 * 100vw);
+">
+    <div class="fancy_border_popup" style="
+        background: rgba(30, 30, 30, 0.95);
+        border: calc(3 / 1920 * 100vw) solid white;
+        border-radius: calc(15 / 1920 * 100vw);
+        padding: calc(40 / 1920 * 100vw);
+        width: 30%;
+        box-shadow: 0 0 calc(20 / 1920 * 100vw) rgba(255, 255, 255, 0.3);
+    ">
+        <center>
+            <h3 style="font-size: calc(32 / 1920 * 100vw); margin-bottom: calc(20 / 1920 * 100vw);">How to Play</h3>
+        </center>
+        <ul style="text-align: left; padding-left: calc(20 / 1920 * 100vw); margin-bottom: calc(30 / 1920 * 100vw);">
+            <li style="margin-bottom: calc(10 / 1920 * 100vw);">Discover new areas on the Psyche Asteroid.</li>
+            <li style="margin-bottom: calc(10 / 1920 * 100vw);">Hover your mouse over certain areas to reveal a hotspot!</li>
+            <li style="margin-bottom: calc(10 / 1920 * 100vw);">Click on the hotspots to learn more about Psyche!</li>
+            <li style="margin-bottom: calc(10 / 1920 * 100vw);">Press Esc to pause the game</li>
         </ul>
         <center>
-            <button id="startGameBtn" class="fancy_button">Start Game</button>
+            <button id="startGameBtn" class="fancy_button" style="
+                font-size: calc(20 / 1920 * 100vw);
+                padding: calc(10 / 1920 * 100vw) calc(30 / 1920 * 100vw);
+                border-radius: calc(10 / 1920 * 100vw);
+                border: none;
+                background-color: #0288d1;
+                color: white;
+                cursor: pointer;
+            ">Start Game</button>
         </center>
     </div>
 </div>
+
 
 <!-- Game Container -->
 <div id="game-container">
@@ -550,5 +593,7 @@
 }
 </script>
 
+
 </body>
 </html>
+

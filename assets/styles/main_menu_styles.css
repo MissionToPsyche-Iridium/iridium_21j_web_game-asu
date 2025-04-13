@@ -38,8 +38,9 @@
 
     .star {
         position: absolute;
-        width: 2px;
-        height: 2px;
+        /* Original star size: 2px. Converting: (2/1920*100)vw ≈ 0.104vw */
+        width: calc(2 / 1920 * 100vw);
+        height: calc(2 / 1920 * 100vw);
         background: white;
         border-radius: 50%;
         opacity: 0;
@@ -59,17 +60,18 @@
     /* Asteroid - Above Stars but Below UI */
     .asteroid {
         position: absolute;
-        width: 650px;
+        /* Original width: 750px → (750/1920*100)vw ≅ 39.1vw */
+        width: calc(750 / 1920 * 100vw);
         height: auto;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         opacity: 0.7;
         animation: asteroid-move 10s infinite linear alternate;
-        z-index: 2; /* Move above stars */
+        z-index: 2;
     }
-
-    /* Floating Asteroid */
+    
+    /* Floating Asteroid Animation */
     @keyframes asteroid-move {
         from { transform: translate(-50%, -50%) scale(1); }
         to { transform: translate(-50%, -52%) scale(1.05); }
@@ -78,22 +80,27 @@
     /* Satellite - Orbits Around the Asteroid */
     .satellite {
         position: absolute;
-        width: 200px;
-        height: auto;
         top: 50%;
         left: 50%;
-        transform-origin: center;
+        /* Original width: 220px → (220/1920*100)vw ≅ 11.5vw */
+        width: calc(220 / 1920 * 100vw);
+        height: auto;
+        transform: translate(-50%, -50%) rotate(0deg);
+        transform-origin: center center;
         animation: orbit 30s linear infinite;
-        z-index: 2; /* Same layer as asteroid */
+        z-index: 2;
     }
-
-    /* Orbit Animation */
+    
     @keyframes orbit {
-        0% {
-            transform: rotate(0deg) translateX(400px) rotate(0deg);
+        0%   { 
+            transform: translate(-50%, -50%) rotate(0deg) 
+                       translateX(calc(500 / 1920 * 100vw)) 
+                       rotate(0deg); 
         }
-        100% {
-            transform: rotate(360deg) translateX(400px) rotate(-360deg);
+        100% { 
+            transform: translate(-50%, -50%) rotate(360deg) 
+                       translateX(calc(500 / 1920 * 100vw)) 
+                       rotate(-360deg); 
         }
     }
 }
@@ -108,12 +115,17 @@
     /* Game Title */
     .game-title {
         font-family: 'Orbitron', sans-serif;
-        font-size: 64px;
+        /* Original font-size: 80px → (80/1920*100)vw ≅ 4.2vw */
+        font-size: calc(80 / 1920 * 100vw);
         font-weight: 700;
         color: #81d4fa;
-        text-shadow: 0 0 10px #81d4fa, 0 0 20px #0288d1, 0 0 30px #0277bd;
+        /* Shadows scaled similarly (10px → 10/1920*100vw, etc.) */
+        text-shadow: 0 0 calc(10 / 1920 * 100vw) #81d4fa, 
+                     0 0 calc(20 / 1920 * 100vw) #0288d1, 
+                     0 0 calc(30 / 1920 * 100vw) #0277bd;
+        /* Positioning remains centered */
         position: absolute;
-        top: 10%;
+        top: 10%;  /* 10px from top relative to full screen */
         left: 50%;
         transform: translateX(-50%);
         animation: float 4s infinite ease-in-out alternate;
@@ -122,7 +134,7 @@
     /* Floating effect */
     @keyframes float {
         from { transform: translateX(-50%) translateY(0); }
-        to { transform: translateX(-50%) translateY(10px); }
+        to { transform: translateX(-50%) translateY(calc(10 / 1920 * 100vw)); }
     }
 
     /* Stacked Buttons */
@@ -134,30 +146,42 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 15px;
+        /* Original gap: 15px → (15/1920*100)vw */
+        gap: calc(15 / 1920 * 100vw);
     }
+
+    .menu-container h1 {
+        /* For example, if you want it to be 50px on a 1920px wide screen: */
+        font-size: calc(50 / 1920 * 100vw);
+        margin-bottom: calc(15 / 1920 * 100vw); /* Optional spacing adjustment */
+      }      
 
     /* Buttons */
     .button {
         text-decoration: none;
-        font-size: 18px;
+        /* Original font-size: 18px */
+        font-size: calc(18 / 1920 * 100vw);
         font-weight: bold;
         color: #FFF;
-        border-radius: 10px;
+        /* Original border-radius: 10px */
+        border-radius: calc(10 / 1920 * 100vw);
         background: linear-gradient(45deg, #0288d1, #01579b);
-        padding: 15px 40px;
-        border: 2px solid #81d4fa;
+        /* Padding: 15px vertical, 40px horizontal */
+        padding: calc(15 / 1920 * 100vw) calc(40 / 1920 * 100vw);
+        /* Border: 2px */
+        border: calc(2 / 1920 * 100vw) solid #81d4fa;
         display: inline-block;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 0 10px rgba(2, 136, 209, 0.8);
-        width: 250px;
+        box-shadow: 0 0 calc(10 / 1920 * 100vw) rgba(2, 136, 209, 0.8);
+        /* Original width: 250px */
+        width: calc(250 / 1920 * 100vw);
         text-align: center;
     }
 
     .button:hover {
         background: linear-gradient(45deg, #0277bd, #004c8c);
-        box-shadow: 0 0 15px rgba(2, 136, 209, 1);
+        box-shadow: 0 0 calc(15 / 1920 * 100vw) rgba(2, 136, 209, 1);
     }
 
     /* Disabled Button */
@@ -171,19 +195,23 @@
     /* Toggle Switch */
     .toggle-container {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
+        /* Original position: 20px from bottom/right */
+        bottom: calc(20 / 1920 * 100vw);
+        right: calc(20 / 1920 * 100vw);
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 16px;
+        /* Original gap: 8px */
+        gap: calc(8 / 1920 * 100vw);
+        /* Original font-size: 16px */
+        font-size: calc(16 / 1920 * 100vw);
     }
 
     .switch {
         position: relative;
         display: inline-block;
-        width: 60px;
-        height: 34px;
+        /* Original dimensions: 60px x 34px */
+        width: calc(60 / 1920 * 100vw);
+        height: calc(34 / 1920 * 100vw);
     }
 
     .switch input {
@@ -201,30 +229,33 @@
         bottom: 0;
         background: linear-gradient(45deg, #444, #222);
         transition: 0.4s;
-        border-radius: 34px;
+        border-radius: calc(34 / 1920 * 100vw);
     }
 
     /* Toggle Ball */
     .slider::before {
         content: "";
         position: absolute;
-        left: 4px;
-        bottom: 4px;
-        width: 26px;
-        height: 26px;
+        left: calc(4 / 1920 * 100vw);
+        bottom: calc(4 / 1920 * 100vw);
+        /* Original ball size: 26px */
+        width: calc(26 / 1920 * 100vw);
+        height: calc(26 / 1920 * 100vw);
         background: white;
         border-radius: 50%;
         transition: 0.4s;
-        box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        box-shadow: 0 0 calc(8 / 1920 * 100vw) rgba(255, 255, 255, 0.6);
     }
 
     .switch input:checked + .slider {
         background: linear-gradient(45deg, #0288d1, #01579b);
-        box-shadow: 0 0 10px rgba(2, 136, 209, 0.7);
+        box-shadow: 0 0 calc(10 / 1920 * 100vw) rgba(2, 136, 209, 0.7);
     }
 
     .switch input:checked + .slider::before {
-        transform: translateX(26px);
+        /* The ball moves by the difference of the switch’s width and height:
+           (60px - 34px) → 26px → (26/1920*100)vw */
+        transform: translateX(calc((60 - 34) / 1920 * 100vw));
     }
 
     /* ================================= */
@@ -254,21 +285,50 @@
 
     .modal-content {
         background: #1a1a1a;
-        padding: 20px;
-        border-radius: 10px;
+        padding: calc(20 / 1920 * 100vw);
+        border-radius: calc(10 / 1920 * 100vw);
         width: 50%;
-        max-width: 500px;
+        /* Original max-width: 500px */
+        max-width: calc(500 / 1920 * 100vw);
         color: white;
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 calc(10 / 1920 * 100vw) rgba(255, 255, 255, 0.3);
         text-align: center;
         position: relative;
     }
 
+    .modal-content h1 {
+        /* 34px at 1920px wide → (34/1920 * 100)vw */
+        font-size: calc(34 / 1920 * 100vw);
+        margin-bottom: calc(10 / 1920 * 100vw); /* Adjust spacing as needed */
+    }
+      
+    .modal-content h2 {
+        /* 32px at 1920px wide → (32/1920 * 100)vw */
+        font-size: calc(32 / 1920 * 100vw);
+        margin-bottom: calc(8 / 1920 * 100vw);
+    }
+      
+    .modal-content p,
+    .modal-content li {
+        /* For example, 18px text */
+        font-size: calc(18 / 1920 * 100vw);
+        line-height: 1.5;
+        margin-bottom: calc(8 / 1920 * 100vw);
+    }
+      
+    /* Optional: Remove default list styling for consistency */
+    .modal-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+         
     .close-button {
         position: absolute;
-        right: 15px;
-        top: 10px;
-        font-size: 24px;
+        right: calc(15 / 1920 * 100vw);
+        top: calc(10 / 1920 * 100vw);
+        /* Original font-size: 24px */
+        font-size: calc(24 / 1920 * 100vw);
         cursor: pointer;
         color: white;
         transition: 0.3s;
@@ -278,5 +338,3 @@
         color: red;
     }
 }
-
-
