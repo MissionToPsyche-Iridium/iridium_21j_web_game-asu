@@ -89,8 +89,9 @@
 
     <!-- canvas will always be the default width for hd-->
     <center>
-    <canvas id="cockpit" width="1920" style="padding:0px 0px;margin:0px 0px;" height="1080"></canvas>
+    <canvas id="cockpit"></canvas>
     </center>
+    
 
     <audio id="clickSound" src="click.mp3" preload="auto"></audio>
     <audio id="failSound" src="fail.mp3" preload="auto"></audio>
@@ -265,9 +266,18 @@
       let cockpit = new Image();
       cockpit.src = "cockpit.png";
 
+
       const draw = document.getElementById("cockpit");
       const picture = draw.getContext("2d"); 
       const body = document.getElementById("body");
+
+      resizeCanvas(); // Call when the game starts
+      window.addEventListener('resize', resizeCanvas); // Call whenever screen changes
+      
+      function resizeCanvas() {
+        draw.width = window.innerWidth;
+        draw.height = window.innerHeight;
+      }
  
       draw.addEventListener("mousedown",function (input){
         let x = input.pageX;
@@ -302,28 +312,35 @@
       body.addEventListener("keyup", function(input){
         space_click=true;
       });
-      draw.addEventListener("mousemove",function (input){
-        mouse_x = input.pageX;
-        mouse_y = input.pageY;
+
+      // Get mouse position relative to the canvas
+      // This is a more accurate way to get the mouse position
+      draw.addEventListener("mousemove", function (event) {
+        const rect = draw.getBoundingClientRect(); // Get canvas position & size
+
+        const scale = Math.min(draw.width / 1920, draw.height / 1080); // Your current canvas scale
+
+        mouse_x = (event.clientX - rect.left) / scale;
+        mouse_y = (event.clientY - rect.top) / scale;
       });
 
       function checkUserSequence(index){
 
-            user_sequence.push(index);
+        user_sequence.push(index);
 
         console.log(`${user_sequence}`);
         
         if(user_sequence.length >= random_sequence.length){
-          let atteru=true;
+          let success=true;
           for(var i=0; i < random_sequence.length;i++){
             if(user_sequence[i] != random_sequence[i]){
-              atteru=false;
+              success=false;
               break;
             }
           }
 
           //user output
-          if(atteru){
+          if(success){
             final_message=2; //success
 
             // Play success sound ONCE
@@ -455,11 +472,16 @@
       
       function gameLoop(){
 
-        if (!isPaused){ // if the game is paused, don't run the game loop
+        picture.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+        picture.clearRect(0, 0, draw.width, draw.height);
+        const scaleX = draw.width / 1920;
+        const scaleY = draw.height / 1080;
+        const scale = Math.min(scaleX, scaleY);
+        picture.setTransform(scale, 0, 0, scale, 0, 0);
 
-          picture.drawImage(cockpit,0,0,1920,1080);
-          
-           // Draw all buttons
+        picture.drawImage(cockpit,0,0,1920,1080);
+
+        if (!isPaused){ // if the game is paused, don't run the game loop
 
           // before engine start
           if (!engine_started) {
@@ -536,7 +558,7 @@
           }
 
           if(final_message == 1){
-            draw_text("Incorrect! Game over.", 400); 
+            draw_text("Incorrect! Try Again.", 400); 
 
             setTimeout(() => {
               resetGame();
@@ -555,6 +577,7 @@
           picture.strokeStyle = Mouse_style;
           drawCircle(picture,mouse_x,mouse_y,m_radius);
         }
+
         animationFrameId = requestAnimationFrame(gameLoop);
       }
 
