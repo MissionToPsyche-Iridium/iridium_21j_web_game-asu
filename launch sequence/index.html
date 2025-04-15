@@ -46,7 +46,8 @@
     <h1>Take OFF!</h1>
     <br>
     <h1>Move to Your Next Destination!</h1>
-    <a class="button game-button" href="../meteoroid_navigation/index.html">Next Game</a>
+[[]]    <a class="button game-button" href="../meteoroid_navigation/index.html" style="font-size: 19px; padding: 10px 20px;">Next Game</a>
+
     </center>
   </div>
 
@@ -70,7 +71,7 @@
 
 
 <div id="on_pause">
-        <div style="" class="fancy_border_popup">
+        <div style=""  style="display: none;" class="fancy_border_popup">
         <center>
           <h3>Menu</h3>
           <button onclick="resumeGame()"  class="fancy_button wide-button">Resume Game</button><br>
@@ -100,7 +101,8 @@
         overlay.style=hide_style;
       }
       show_overlay();
-      
+      hide_pause(); // Make sure the pause menu is hidden until Esc is pressed
+
    </script>
 
 <script src="gradient.js"></script>
@@ -215,6 +217,7 @@
 
   var is_counting_down = false; // Flag to indicate if countdown is active
   var countdownInterval = null; // Reference to the countdown interval
+
 
   function draw_bg(){
 
@@ -409,7 +412,7 @@
     // if the window got resized
       window_h = window.innerHeight
       window_w = window.innerWidth;
-    
+
       draw_bg();
 
       if(is_flying==1){
